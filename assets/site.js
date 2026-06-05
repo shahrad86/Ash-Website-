@@ -545,3 +545,4 @@ const AH = (() => {
            signInGoogle, signOut, openDrawer, closeDrawer, track, lead, toast, saved, isSaved, user,
            _store: store };
 })();
+window.AH = AH;

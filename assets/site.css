@@ -56,7 +56,7 @@ header.nav.shrink .wrap{height:70px}
 .brand b{font-family:'Cormorant Garamond';font-size:1.8rem;font-weight:600;color:var(--ink);letter-spacing:.02em;transition:color .3s;white-space:nowrap}
 .brand:hover b{color:var(--gold)}
 .brand i{font-style:normal;color:var(--gold)}
-.navlinks{display:flex;gap:1.7rem;flex-wrap:wrap}
+.navlinks{display:flex;gap:1.7rem;flex-wrap:wrap;align-items:center}
 .navlinks a{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text);font-weight:400;white-space:nowrap}
 .navlinks a.active{color:var(--gold)}
 .nav-cta{display:flex;align-items:center;gap:.9rem}
