@@ -1,25 +1,50 @@
 /* ============================================================
    AshHomes GTA — shared site engine
-   Front-end demo implementation. Bolt: replace the storage
-   layer (localStorage) with Supabase as described in
-   BOLT-INSTRUCTIONS.md — do NOT change any UI/UX behaviour.
+   Supabase-backed: Auth (email + Google OAuth), saved_listings,
+   activity tracking, and leads. UI/UX is unchanged from the
+   client-approved design.
    ============================================================ */
 
 window.AH_CONFIG = Object.assign({
-  GA4_ID: 'G-XXXXXXXXXX',                 // TODO: real GA4 Measurement ID
-  BOLDTRAIL_WEBHOOK: '',                  // TODO: BoldTrail (kvCORE) lead webhook / API endpoint
+  GA4_ID: 'G-XXXXXXXXXX',
   AGENT_EMAIL: 'ashhomesgta@gmail.com',
   AGENT_PHONE: '+14165206500'
 }, window.AH_CONFIG || {});
 
+/* ---- Supabase client (loaded from CDN on every page) ---- */
+const _SB_URL  = 'https://0ec90b57d6e95fcbda19832f.supabase.co';
+const _SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJib2x0IiwicmVmIjoiMGVjOTBiNTdkNmU5NWZjYmRhMTk4MzJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4ODE1NzQsImV4cCI6MTc1ODg4MTU3NH0.9I8-U0x86Ak8t2DGaIk0HfvTSLsAyzdnz-Nw00mMkKw';
+
 const AH = (() => {
   const BASE = window.SITE_BASE || '';
+
+  /* ---- localStorage fallback (used only for anonymous saves before login) ---- */
   const store = {
     get(k, d){ try{ return JSON.parse(localStorage.getItem(k)) ?? d }catch(e){ return d } },
-    set(k, v){ localStorage.setItem(k, JSON.stringify(v)) }
+    set(k, v){ localStorage.setItem(k, JSON.stringify(v)) },
+    del(k){ localStorage.removeItem(k) }
   };
 
-  /* ---------------- LISTINGS DATA ---------------- */
+  /* ---- session ID (persists for browser session) ---- */
+  let _sessionId = sessionStorage.getItem('ah_sid');
+  if (!_sessionId) { _sessionId = crypto.randomUUID(); sessionStorage.setItem('ah_sid', _sessionId); }
+
+  /* ---- Supabase ---- */
+  let sb = null;
+  function getSB(){
+    if (sb) return sb;
+    if (window.supabase && window.supabase.createClient) {
+      sb = window.supabase.createClient(_SB_URL, _SB_ANON, {
+        auth: { persistSession: true, autoRefreshToken: true }
+      });
+    }
+    return sb;
+  }
+
+  /* ---- in-memory current user ---- */
+  let _currentUser = null; // { id, email, name, provider }
+
+  /* ---- LISTINGS DATA ---- */
   const LISTINGS = [
     {price:"$1,319,000",addr:"PH02, 181 Sterling Road",area:"Bloordale, Toronto",bd:"3",ba:2,pk:1,sqft:"900",mls:"C13140044",status:"sale",img:"https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=700&q=70"},
     {price:"$1,069,000",addr:"WL08, 80 Marine Parade Dr",area:"Mimico, Etobicoke",bd:"1+1",ba:2,pk:2,sqft:"939",mls:"W13009586",status:"sale",img:"https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=700&q=70"},
@@ -32,111 +57,215 @@ const AH = (() => {
   ];
   const ST = {sale:{t:"For Sale",c:""},lease:{t:"For Lease",c:"lease"},sold:{t:"Sold",c:"sold"}};
 
-  /* ---------------- ACTIVITY TRACKING ----------------
-     Every meaningful interaction is recorded. Bolt: mirror each
-     track() call to the `activity` table in Supabase. */
+  /* ================================================================
+     ACTIVITY TRACKING
+     Batches writes and flushes to Supabase every 4 s or on unload.
+     ================================================================ */
+  let _actQueue = [];
+  let _actTimer  = null;
+
   function track(event, data = {}){
-    const log = store.get('ah_activity', []);
-    log.push({
+    const rec = {
       ts: new Date().toISOString(),
       event,
       page: location.pathname.split('/').pop() || 'index.html',
-      user: (user() && user().email) || 'anonymous',
+      user_email: (_currentUser && _currentUser.email) || null,
+      session_id: _sessionId,
       data
-    });
-    if(log.length > 4000) log.splice(0, log.length - 4000);
-    store.set('ah_activity', log);
-    if(typeof gtag === 'function'){ try{ gtag('event', event, data); }catch(e){} }
+    };
+    _actQueue.push(rec);
+    if (typeof gtag === 'function'){ try{ gtag('event', event, data); }catch(e){} }
+    if (!_actTimer) _actTimer = setTimeout(_flushActivity, 4000);
   }
 
-  /* ---------------- LEADS ----------------
-     Single funnel for every form on the site.
-     Bolt: 1) insert into `leads` table  2) POST to BoldTrail. */
-  function lead(type, payload){
-    const leads = store.get('ah_leads', []);
-    const rec = { ts: new Date().toISOString(), type, ...payload };
-    leads.push(rec); store.set('ah_leads', leads);
+  async function _flushActivity(){
+    _actTimer = null;
+    if (!_actQueue.length) return;
+    const batch = _actQueue.splice(0, _actQueue.length);
+    const client = getSB();
+    if (!client) return;
+    try { await client.from('activity').insert(batch); } catch(e) {}
+  }
+
+  addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') _flushActivity(); });
+  addEventListener('pagehide', _flushActivity);
+
+  /* ================================================================
+     LEADS
+     Inserts into `leads` table and calls the send-lead edge function
+     which handles BoldTrail forwarding and showing-request emails.
+     ================================================================ */
+  async function lead(type, payload){
     track('lead_submitted', { type, ...payload });
-    if(window.AH_CONFIG.BOLDTRAIL_WEBHOOK){
-      try{
-        fetch(window.AH_CONFIG.BOLDTRAIL_WEBHOOK, {
-          method:'POST', headers:{'Content-Type':'application/json'},
-          body: JSON.stringify(rec)
-        });
-      }catch(e){}
+
+    const { name, email, phone, message, ...rest } = payload;
+    const body = {
+      type,
+      name: name || null,
+      email: email || null,
+      phone: phone || null,
+      message: message || null,
+      payload: rest,
+      source_page: location.pathname.split('/').pop() || 'index.html'
+    };
+
+    try {
+      await fetch(`${_SB_URL}/functions/v1/send-lead`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Apikey': _SB_ANON },
+        body: JSON.stringify(body)
+      });
+    } catch(e) {}
+
+    return body;
+  }
+
+  /* ================================================================
+     AUTH — Supabase email/password + Google OAuth
+     ================================================================ */
+  function user(){ return _currentUser; }
+
+  async function _upsertProfile(sbUser){
+    const client = getSB();
+    if (!client || !sbUser) return;
+    const name = sbUser.user_metadata?.full_name || sbUser.user_metadata?.name || sbUser.email.split('@')[0];
+    const provider = sbUser.app_metadata?.provider || 'email';
+    await client.from('profiles').upsert({
+      id: sbUser.id,
+      name,
+      email: sbUser.email,
+      provider,
+    }, { onConflict: 'id', ignoreDuplicates: false });
+    _currentUser = { id: sbUser.id, email: sbUser.email, name, provider };
+  }
+
+  async function _mergePendingSaves(){
+    /* After login, push any localStorage saves into saved_listings */
+    const pending = store.get('ah_saved', []);
+    if (!pending.length) return;
+    const client = getSB();
+    if (!client || !_currentUser) return;
+    const rows = pending.map(mls => {
+      const l = LISTINGS.find(x => x.mls === mls);
+      return { mls, addr: l ? l.addr : null, price: l ? l.price : null };
+    });
+    try {
+      await client.from('saved_listings').upsert(rows, { onConflict: 'user_id,mls', ignoreDuplicates: true });
+    } catch(e) {}
+    store.del('ah_saved');
+    await _loadSaved();
+  }
+
+  /* in-memory saved set (always in sync with DB for logged-in users) */
+  let _savedSet = new Set(store.get('ah_saved', []));
+
+  async function _loadSaved(){
+    const client = getSB();
+    if (!client || !_currentUser) {
+      _savedSet = new Set(store.get('ah_saved', []));
+      return;
     }
-    return rec;
+    try {
+      const { data } = await client.from('saved_listings').select('mls');
+      _savedSet = new Set((data || []).map(r => r.mls));
+    } catch(e) {}
   }
 
-  /* ---------------- AUTH (demo) ----------------
-     Bolt: replace with Supabase Auth (email/password + Google
-     OAuth). Keep this exact modal UI. */
-  function user(){ return store.get('ah_user', null); }
-  function users(){ return store.get('ah_users', []); }
+  async function signUp(name, email, pass){
+    const client = getSB();
+    if (!client) return {error:'Service unavailable.'};
+    const { data, error } = await client.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+    if (error) return {error: error.message};
+    if (data.user) { await _upsertProfile(data.user); await _mergePendingSaves(); }
+    return {ok:true};
+  }
 
-  function signUp(name, email, pass){
-    const all = users();
-    if(all.find(u => u.email === email)) return {error:'An account with this email already exists. Sign in instead.'};
-    const u = {name, email, pass, provider:'email', joined:new Date().toISOString()};
-    all.push(u); store.set('ah_users', all); store.set('ah_user', {name, email, provider:'email'});
-    track('sign_up', {method:'email', email});
+  async function signIn(email, pass){
+    const client = getSB();
+    if (!client) return {error:'Service unavailable.'};
+    const { data, error } = await client.auth.signInWithPassword({ email, password: pass });
+    if (error) return {error: error.message};
+    if (data.user) { await _upsertProfile(data.user); await _mergePendingSaves(); }
     return {ok:true};
   }
-  function signIn(email, pass){
-    const u = users().find(u => u.email === email && u.pass === pass);
-    if(!u) return {error:'Email or password doesn’t match. Try again or create an account.'};
-    store.set('ah_user', {name:u.name, email:u.email, provider:'email'});
-    track('sign_in', {method:'email', email});
-    return {ok:true};
-  }
+
   function signInGoogle(){
-    // DEMO ONLY — Bolt: replace with supabase.auth.signInWithOAuth({provider:'google'})
-    const email = prompt('Google Sign-In (demo)\n\nEnter the Google email to simulate:');
-    if(!email) return;
-    const name = email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-    const all = users();
-    if(!all.find(u => u.email === email)){ all.push({name, email, provider:'google', joined:new Date().toISOString()}); store.set('ah_users', all); }
-    store.set('ah_user', {name, email, provider:'google'});
-    track('sign_in', {method:'google', email});
-    closeModal(); refreshAuthUI(); toast(`Welcome, ${name.split(' ')[0]}.`);
-  }
-  function signOut(){
-    track('sign_out', {email: user() && user().email});
-    localStorage.removeItem('ah_user');
-    refreshAuthUI(); toast('Signed out.');
+    const client = getSB();
+    if (!client) { toast('Service unavailable.'); return; }
+    client.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: location.href }
+    });
   }
 
-  /* ---------------- SAVED LISTINGS ---------------- */
-  function saved(){ return store.get('ah_saved', []); }
-  function isSaved(mls){ return saved().includes(mls); }
-  function toggleSave(mls, btn){
-    let s = saved();
-    if(s.includes(mls)){
-      s = s.filter(x => x !== mls);
+  async function signOut(){
+    track('sign_out', {email: _currentUser && _currentUser.email});
+    await _flushActivity();
+    const client = getSB();
+    if (client) await client.auth.signOut();
+    _currentUser = null;
+    _savedSet = new Set();
+    refreshAuthUI();
+    refreshSavedUI();
+    toast('Signed out.');
+  }
+
+  /* ================================================================
+     SAVED LISTINGS
+     ================================================================ */
+  function saved(){ return [..._savedSet]; }
+  function isSaved(mls){ return _savedSet.has(mls); }
+
+  async function toggleSave(mls, btn){
+    const client = getSB();
+    if (_savedSet.has(mls)){
+      _savedSet.delete(mls);
       track('listing_unsaved', {mls});
-    }else{
-      s.push(mls);
+      if (_currentUser && client){
+        try { await client.from('saved_listings').delete().eq('mls', mls); } catch(e) {}
+      } else {
+        const s = store.get('ah_saved', []).filter(x => x !== mls);
+        store.set('ah_saved', s);
+      }
+    } else {
+      _savedSet.add(mls);
       const l = LISTINGS.find(x => x.mls === mls);
       track('listing_saved', {mls, addr: l && l.addr, price: l && l.price});
       toast('Saved to your list.');
-      if(!user()) setTimeout(()=>{ openModal('signup','Create a free account so your saved homes follow you to any device.'); }, 700);
+      if (_currentUser && client){
+        try {
+          await client.from('saved_listings').upsert(
+            { mls, addr: l ? l.addr : null, price: l ? l.price : null },
+            { onConflict: 'user_id,mls', ignoreDuplicates: true }
+          );
+        } catch(e) {}
+      } else {
+        const s = store.get('ah_saved', []);
+        if (!s.includes(mls)) { s.push(mls); store.set('ah_saved', s); }
+        setTimeout(()=>{ openModal('signup','Create a free account so your saved homes follow you to any device.'); }, 700);
+      }
     }
-    store.set('ah_saved', s);
-    if(btn) btn.classList.toggle('on', s.includes(mls));
+    if(btn) btn.classList.toggle('on', _savedSet.has(mls));
     refreshSavedUI();
   }
-  function sendListToAsh(){
+
+  async function sendListToAsh(){
     const s = saved();
     if(!s.length){ toast('Save a few homes first.'); return; }
     const u = user();
     if(!u){ openModal('signup','Sign in so Ash knows who the list is from.'); return; }
     const items = s.map(m => { const l = LISTINGS.find(x => x.mls === m); return l ? `• ${l.addr} — ${l.area} — ${l.price} (MLS ${l.mls})` : `• MLS ${m}`; });
-    lead('showing_request', {name:u.name, email:u.email, listings:s});
-    location.href = `mailto:${window.AH_CONFIG.AGENT_EMAIL}?subject=${encodeURIComponent('Showing request from '+u.name)}&body=${encodeURIComponent(`Hi Ash,\n\nI'd love to book showings for these homes:\n\n${items.join('\n')}\n\nThanks,\n${u.name}\n${u.email}`)}`;
+    await lead('showing_request', {
+      name: u.name, email: u.email,
+      listings: s,
+      listings_text: items
+    });
     toast('Your list is on its way to Ash.');
   }
 
-  /* ---------------- SHARED UI (modal, drawer, toast) ---------------- */
+  /* ================================================================
+     SHARED UI — modal, drawer, toast (structure unchanged)
+     ================================================================ */
   function injectShell(){
     const shell = document.createElement('div');
     shell.innerHTML = `
@@ -188,15 +317,21 @@ const AH = (() => {
     track('auth_modal_opened', {mode});
   }
   function closeModal(){ document.getElementById('ahModal').classList.remove('open'); }
-  function submitAuth(){
-    const name = document.getElementById('amName').value.trim();
+
+  async function submitAuth(){
+    const name  = document.getElementById('amName').value.trim();
     const email = document.getElementById('amEmail').value.trim();
-    const pass = document.getElementById('amPass').value;
-    const err = document.getElementById('amErr');
-    if(!email || !pass || (modalMode === 'signup' && !name)){ err.textContent = 'Please fill in every field.'; err.style.display = 'block'; return; }
-    const r = modalMode === 'signup' ? signUp(name, email, pass) : signIn(email, pass);
+    const pass  = document.getElementById('amPass').value;
+    const err   = document.getElementById('amErr');
+    const btn   = document.getElementById('amGo');
+    if(!email || !pass || (modalMode === 'signup' && !name)){
+      err.textContent = 'Please fill in every field.'; err.style.display = 'block'; return;
+    }
+    btn.disabled = true; btn.textContent = 'Please wait…';
+    const r = modalMode === 'signup' ? await signUp(name, email, pass) : await signIn(email, pass);
+    btn.disabled = false; btn.textContent = modalMode === 'signup' ? 'Create Account' : 'Sign In';
     if(r.error){ err.textContent = r.error; err.style.display = 'block'; return; }
-    closeModal(); refreshAuthUI();
+    closeModal(); refreshAuthUI(); refreshSavedUI();
     toast(modalMode === 'signup' ? 'Account created. Welcome!' : 'Welcome back.');
   }
 
@@ -235,7 +370,9 @@ const AH = (() => {
     });
   }
 
-  /* ---------------- LISTING RENDER ---------------- */
+  /* ================================================================
+     LISTING RENDER
+     ================================================================ */
   function renderListings(gridId = 'grid', filter = 'all', q = '', limit = 0){
     const g = document.getElementById(gridId); if(!g) return;
     g.innerHTML = '';
@@ -249,16 +386,18 @@ const AH = (() => {
     if(!g.innerHTML) g.innerHTML = '<p style="color:var(--muted);grid-column:1/-1">Nothing matches. Contact Ash for off-market options.</p>';
   }
 
-  /* ---------------- FORMS ---------------- */
+  /* ================================================================
+     FORMS
+     ================================================================ */
   function bindLeadForms(){
     document.querySelectorAll('form[data-lead]').forEach(f => {
-      f.addEventListener('submit', e => {
+      f.addEventListener('submit', async e => {
         e.preventDefault();
         const data = {};
         f.querySelectorAll('input,select,textarea').forEach(i => { if(i.name) data[i.name] = i.value; });
         const required = f.querySelectorAll('[required]');
         for(const r of required){ if(!r.value){ toast('Please fill in the required fields.'); r.focus(); return; } }
-        lead(f.dataset.lead, data);
+        await lead(f.dataset.lead, data);
         const ok = f.querySelector('.form-ok');
         if(ok) ok.style.display = 'block';
         f.querySelectorAll('input,textarea').forEach(i => i.value = '');
@@ -267,7 +406,9 @@ const AH = (() => {
     });
   }
 
-  /* ---------------- CALCULATORS ---------------- */
+  /* ================================================================
+     CALCULATORS (unchanged logic)
+     ================================================================ */
   const fmt = n => '$' + Math.round(n).toLocaleString();
   function initCalcs(){
     const $ = id => document.getElementById(id);
@@ -305,10 +446,10 @@ const AH = (() => {
         const down=price*dp/100, loan=price-down;
         const i=Math.pow(1+(rate/100)/2,1/6)-1, n=300;
         const pay=loan*i/(1-Math.pow(1+i,-n));
-        const ownMonthly=pay + price*0.01/12 + price*0.0066/12;            // + property tax ~1%/yr + maintenance
+        const ownMonthly=pay + price*0.01/12 + price*0.0066/12;
         const horizon=years*12;
-        const rentTotal=rent*horizon*1.025;                                 // modest rent growth
-        const appreciation=price*(Math.pow(1.03,years)-1);                  // 3%/yr appreciation
+        const rentTotal=rent*horizon*1.025;
+        const appreciation=price*(Math.pow(1.03,years)-1);
         let bal=loan; const mi=i;
         for(let k=0;k<horizon;k++){ bal=bal*(1+mi)-pay; }
         const principalPaid=loan-Math.max(bal,0);
@@ -334,8 +475,10 @@ const AH = (() => {
     });
   }
 
-  /* ---------------- BOOT ---------------- */
-  function init(){
+  /* ================================================================
+     BOOT
+     ================================================================ */
+  async function init(){
     injectShell();
 
     const nav = document.getElementById('nav');
@@ -357,6 +500,35 @@ const AH = (() => {
 
     bindLeadForms();
     initCalcs();
+
+    /* --- Restore auth session from Supabase --- */
+    const client = getSB();
+    if (client) {
+      const { data: { session } } = await client.auth.getSession();
+      if (session && session.user) {
+        await _upsertProfile(session.user);
+      }
+
+      client.auth.onAuthStateChange((event, session) => {
+        (async () => {
+          if (session && session.user) {
+            await _upsertProfile(session.user);
+            if (event === 'SIGNED_IN') {
+              await _mergePendingSaves();
+              track('sign_in', { method: session.user.app_metadata?.provider || 'email', email: session.user.email });
+            }
+          } else {
+            _currentUser = null;
+            _savedSet = new Set();
+          }
+          refreshAuthUI();
+          await _loadSaved();
+          refreshSavedUI();
+        })();
+      });
+    }
+
+    await _loadSaved();
     refreshAuthUI();
     refreshSavedUI();
     track('page_view', {title: document.title});

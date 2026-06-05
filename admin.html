@@ -9,7 +9,6 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/site.css">
-<script>window.SITE_BASE="";</script>
 <style>
   .adminbar{background:var(--ink-2);color:#cdd8d3;padding:1.2rem 0}
   .adminbar .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
@@ -32,11 +31,18 @@
   td.mono{font-family:monospace;font-size:.74rem;color:var(--muted);max-width:340px;overflow-wrap:anywhere}
   .toolrow{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap}
   .toolrow .r{display:flex;gap:.8rem;flex-wrap:wrap}
+  .filters{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:1.4rem;align-items:center}
+  .filters input,.filters select{border:1px solid var(--line);background:var(--paper);padding:.45rem .8rem;font-family:'Jost';font-size:.78rem;color:var(--text);border-radius:var(--r)}
+  .filters input:focus,.filters select:focus{outline:none;border-color:var(--gold)}
+  .filters label{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
   .gate{min-height:70vh;display:flex;align-items:center;justify-content:center}
   .gate .box{background:var(--paper);padding:3rem;border-radius:var(--r);box-shadow:var(--shadow);max-width:380px;width:100%;text-align:center}
   .gate h2{font-weight:400;font-size:2rem;margin:.4rem 0 1.4rem}
+  .gate .mer{display:none;color:#b14a3c;font-size:.82rem;margin-bottom:.8rem}
   .empty{padding:3rem;text-align:center;color:var(--muted);font-size:.9rem}
-  .note{font-size:.74rem;color:var(--muted);margin-top:1.2rem;max-width:680px}
+  .loading{padding:3rem;text-align:center;color:var(--muted);font-size:.9rem}
+  @media(max-width:760px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:520px){.kpis{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -45,22 +51,26 @@
   <div class="wrap">
     <b>Ash<i>Homes</i> · Admin</b>
     <div style="display:flex;gap:1.4rem;align-items:center">
+      <span id="adminEmail" style="font-size:.76rem;letter-spacing:.1em;color:#9fb0aa"></span>
       <a href="index.html" style="font-size:.76rem;letter-spacing:.14em;text-transform:uppercase">← Back to site</a>
-      <button class="btn btn-line" style="padding:.55rem 1.2rem;font-size:.7rem" onclick="lock()">Lock</button>
+      <button class="btn btn-line" style="padding:.55rem 1.2rem;font-size:.7rem" onclick="lock()">Sign out</button>
     </div>
   </div>
 </div>
 
+<!-- Auth gate -->
 <div class="gate" id="gate">
   <div class="box">
     <div class="eyebrow">Admin access</div>
-    <h2>Enter admin PIN</h2>
-    <input class="inp" id="pin" type="password" placeholder="PIN" style="text-align:center;margin-bottom:1.4rem">
-    <button class="btn btn-gold btn-block" onclick="unlock()">Unlock</button>
-    <p class="note" style="text-align:center">Demo gate (PIN: 2026). Bolt replaces this with real authentication and an admin role — see BOLT-INSTRUCTIONS.md.</p>
+    <h2>Sign in to admin</h2>
+    <div class="mer" id="gateErr"></div>
+    <div class="fg" style="text-align:left"><input class="inp" id="gEmail" type="email" placeholder="Email" style="margin-bottom:1.2rem"></div>
+    <div class="fg" style="text-align:left"><input class="inp" id="gPass" type="password" placeholder="Password" style="margin-bottom:1.4rem"></div>
+    <button class="btn btn-gold btn-block" id="gBtn" onclick="gateSignIn()">Sign In</button>
   </div>
 </div>
 
+<!-- Admin panel -->
 <div class="section tight" id="panel" style="display:none">
   <div class="wrap">
     <div class="lead" style="margin-bottom:2.4rem">
@@ -68,7 +78,13 @@
       <h2 style="font-size:clamp(2rem,3.6vw,2.8rem)">Everything the site has captured.</h2>
     </div>
 
-    <div class="kpis" id="kpis"></div>
+    <div class="kpis" id="kpis">
+      <div class="cell"><b>—</b><span>Total events</span></div>
+      <div class="cell"><b>—</b><span>Page views</span></div>
+      <div class="cell"><b>—</b><span>Leads captured</span></div>
+      <div class="cell"><b>—</b><span>Registered users</span></div>
+      <div class="cell"><b>—</b><span>Saved listings</span></div>
+    </div>
 
     <div class="atabs">
       <button class="active" data-t="activity">Activity Log</button>
@@ -77,91 +93,202 @@
       <button data-t="saved">Saved Listings</button>
     </div>
 
+    <div class="filters" id="filters">
+      <div>
+        <label>From</label>
+        <input type="date" id="fFrom">
+      </div>
+      <div>
+        <label>To</label>
+        <input type="date" id="fTo">
+      </div>
+      <div id="eventFilterWrap">
+        <label>Event / Type</label>
+        <input type="text" id="fEvent" placeholder="e.g. page_view" style="width:160px">
+      </div>
+      <button class="btn btn-ghost" style="padding:.45rem 1rem;font-size:.7rem;margin-top:1.1rem" onclick="loadTab()">Apply</button>
+      <button class="btn btn-line" style="padding:.45rem 1rem;font-size:.7rem;margin-top:1.1rem" onclick="clearFilters()">Clear</button>
+    </div>
+
     <div class="toolrow">
       <span style="font-size:.8rem;color:var(--muted)" id="countLbl"></span>
       <div class="r">
         <button class="btn btn-ghost" style="padding:.55rem 1.2rem;font-size:.7rem" onclick="exportCSV()">Export CSV</button>
         <button class="btn btn-ghost" style="padding:.55rem 1.2rem;font-size:.7rem" onclick="exportJSON()">Export JSON</button>
-        <button class="btn btn-line" style="padding:.55rem 1.2rem;font-size:.7rem" onclick="clearCurrent()">Clear This Data</button>
       </div>
     </div>
 
-    <div class="tblwrap"><div id="tbl"></div></div>
-
-    <p class="note">This demo dashboard reads from this browser's storage. In the production build (see BOLT-INSTRUCTIONS.md), every visitor's activity, lead, account and saved listing is written to the central database, and this page becomes a protected admin view over ALL visitors — with the same tables, filters and exports for building your funnel database.</p>
+    <div class="tblwrap"><div id="tbl"><div class="loading">Loading…</div></div></div>
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-const get=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
-let tab='activity';
-function unlock(){
-  if(document.getElementById('pin').value!=='2026'){alert('Wrong PIN (demo PIN is 2026)');return;}
-  sessionStorage.setItem('ah_admin','1');boot();
+const SB_URL  = 'https://0ec90b57d6e95fcbda19832f.supabase.co';
+const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJib2x0IiwicmVmIjoiMGVjOTBiNTdkNmU5NWZjYmRhMTk4MzJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4ODE1NzQsImV4cCI6MTc1ODg4MTU3NH0.9I8-U0x86Ak8t2DGaIk0HfvTSLsAyzdnz-Nw00mMkKw';
+const ADMIN_EMAIL = 'ashhomesgta@gmail.com';
+const FN_BASE = SB_URL + '/functions/v1';
+
+const sb = supabase.createClient(SB_URL, SB_ANON, { auth: { persistSession: true, autoRefreshToken: true } });
+
+let tab = 'activity';
+let _session = null;
+let _currentData = [];
+
+/* ---- Auth ---- */
+async function gateSignIn(){
+  const email = document.getElementById('gEmail').value.trim();
+  const pass  = document.getElementById('gPass').value;
+  const err   = document.getElementById('gateErr');
+  const btn   = document.getElementById('gBtn');
+  err.style.display = 'none';
+  if (!email || !pass) { showErr('Please enter your email and password.'); return; }
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  btn.disabled = false; btn.textContent = 'Sign In';
+  if (error) { showErr(error.message); return; }
+  if (data.user.email !== ADMIN_EMAIL) {
+    await sb.auth.signOut();
+    showErr('This account does not have admin access.');
+    return;
+  }
+  _session = data.session;
+  bootPanel(data.user);
 }
-function lock(){sessionStorage.removeItem('ah_admin');location.reload();}
-function data(){
-  return {
-    activity:get('ah_activity',[]).slice().reverse(),
-    leads:get('ah_leads',[]).slice().reverse(),
-    users:get('ah_users',[]).map(u=>({joined:u.joined,name:u.name,email:u.email,provider:u.provider})),
-    saved:get('ah_saved',[]).map(m=>({mls:m}))
-  };
+
+function showErr(msg){
+  const e = document.getElementById('gateErr');
+  e.textContent = msg; e.style.display = 'block';
 }
-function boot(){
-  if(sessionStorage.getItem('ah_admin')!=='1')return;
-  document.getElementById('gate').style.display='none';
-  document.getElementById('panel').style.display='block';
-  const d=data();
-  const views=d.activity.filter(a=>a.event==='page_view').length;
-  const k=[['Total events',d.activity.length],['Page views',views],['Leads captured',d.leads.length],['Registered users',d.users.length],['Saved listings',d.saved.length]];
-  document.getElementById('kpis').innerHTML=k.map(x=>`<div class="cell"><b>${x[1]}</b><span>${x[0]}</span></div>`).join('');
-  render();
+
+async function lock(){
+  await sb.auth.signOut();
+  _session = null;
+  document.getElementById('panel').style.display = 'none';
+  document.getElementById('gate').style.display = 'flex';
 }
-function render(){
-  const d=data()[tab];
-  document.getElementById('countLbl').textContent=d.length+' records — '+tab;
-  if(!d.length){document.getElementById('tbl').innerHTML='<div class="empty">Nothing here yet. Browse the site, save listings and submit a form — every interaction lands in this log.</div>';return;}
-  const cols=[...new Set(d.flatMap(r=>Object.keys(r)))];
-  let h='<table><thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>';
-  d.slice(0,500).forEach(r=>{
-    h+='<tr>'+cols.map(c=>{
-      let v=r[c];
-      if(v===undefined||v===null)return'<td></td>';
-      if(c==='event'||c==='type'||c==='provider')return'<td><span class="pill">'+v+'</span></td>';
-      if(typeof v==='object')return'<td class="mono">'+JSON.stringify(v)+'</td>';
-      if(c==='ts'||c==='joined')return'<td style="white-space:nowrap">'+String(v).replace('T',' ').slice(0,19)+'</td>';
-      return'<td>'+String(v)+'</td>';
-    }).join('')+'</tr>';
+
+async function bootPanel(user){
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('panel').style.display = 'block';
+  document.getElementById('adminEmail').textContent = user.email;
+  await loadKPIs();
+  await loadTab();
+}
+
+/* ---- API calls via admin-data edge function ---- */
+async function apiFetch(params){
+  const qs = new URLSearchParams(params).toString();
+  const r = await fetch(`${FN_BASE}/admin-data?${qs}`, {
+    headers: { 'Authorization': `Bearer ${_session.access_token}`, 'Apikey': SB_ANON }
   });
-  document.getElementById('tbl').innerHTML=h+'</tbody></table>';
+  if (!r.ok) { const e = await r.json().catch(()=>({})); throw new Error(e.error || r.statusText); }
+  return r.json();
 }
-document.querySelectorAll('.atabs button').forEach(b=>b.onclick=()=>{
-  document.querySelectorAll('.atabs button').forEach(x=>x.classList.remove('active'));
-  b.classList.add('active');tab=b.dataset.t;render();
+
+async function loadKPIs(){
+  try {
+    const d = await apiFetch({ table: 'kpis' });
+    document.getElementById('kpis').innerHTML = [
+      [d.total_events, 'Total events'],
+      [d.page_views,   'Page views'],
+      [d.leads,        'Leads captured'],
+      [d.users,        'Registered users'],
+      [d.saved,        'Saved listings'],
+    ].map(([v,l]) => `<div class="cell"><b>${v ?? 0}</b><span>${l}</span></div>`).join('');
+  } catch(e) {
+    console.error('KPI error:', e);
+  }
+}
+
+async function loadTab(){
+  document.getElementById('tbl').innerHTML = '<div class="loading">Loading…</div>';
+  document.getElementById('countLbl').textContent = '';
+
+  const params = { table: tab };
+  const from = document.getElementById('fFrom').value;
+  const to   = document.getElementById('fTo').value;
+  const evt  = document.getElementById('fEvent').value.trim();
+  if (from) params.date_from = from;
+  if (to)   params.date_to   = to + 'T23:59:59Z';
+  if (evt)  params.event     = evt;
+
+  try {
+    const { data, count } = await apiFetch(params);
+    _currentData = data || [];
+    document.getElementById('countLbl').textContent = `${count ?? _currentData.length} records — ${tab}`;
+    render(_currentData);
+  } catch(e) {
+    document.getElementById('tbl').innerHTML = `<div class="empty">Error loading data: ${e.message}</div>`;
+  }
+}
+
+function render(rows){
+  if (!rows || !rows.length) {
+    document.getElementById('tbl').innerHTML = '<div class="empty">No records found for the selected filters.</div>';
+    return;
+  }
+  const cols = [...new Set(rows.flatMap(r => Object.keys(r)))];
+  let h = '<table><thead><tr>' + cols.map(c => '<th>' + c + '</th>').join('') + '</tr></thead><tbody>';
+  rows.slice(0, 500).forEach(r => {
+    h += '<tr>' + cols.map(c => {
+      let v = r[c];
+      if (v === undefined || v === null) return '<td></td>';
+      if (c === 'event' || c === 'type' || c === 'provider') return '<td><span class="pill">' + v + '</span></td>';
+      if (typeof v === 'object') return '<td class="mono">' + JSON.stringify(v) + '</td>';
+      if (c === 'ts' || c === 'saved_at' || c === 'created_at') return '<td style="white-space:nowrap">' + String(v).replace('T',' ').slice(0,19) + '</td>';
+      return '<td>' + String(v) + '</td>';
+    }).join('') + '</tr>';
+  });
+  document.getElementById('tbl').innerHTML = h + '</tbody></table>';
+}
+
+function clearFilters(){
+  document.getElementById('fFrom').value = '';
+  document.getElementById('fTo').value = '';
+  document.getElementById('fEvent').value = '';
+  loadTab();
+}
+
+/* ---- Tabs ---- */
+document.querySelectorAll('.atabs button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.atabs button').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  tab = b.dataset.t;
+  const evtWrap = document.getElementById('eventFilterWrap');
+  evtWrap.querySelector('label').textContent = tab === 'leads' ? 'Type' : 'Event';
+  document.getElementById('fEvent').placeholder = tab === 'leads' ? 'e.g. consultation' : 'e.g. page_view';
+  loadTab();
 });
+
+/* ---- Export ---- */
 function exportCSV(){
-  const d=data()[tab];if(!d.length){alert('Nothing to export.');return;}
-  const cols=[...new Set(d.flatMap(r=>Object.keys(r)))];
-  const esc=v=>'"'+String(v===undefined?'':typeof v==='object'?JSON.stringify(v):v).replace(/"/g,'""')+'"';
-  const csv=[cols.join(',')].concat(d.map(r=>cols.map(c=>esc(r[c])).join(','))).join('\n');
-  dl(csv,'ashhomes-'+tab+'-'+new Date().toISOString().slice(0,10)+'.csv','text/csv');
+  if (!_currentData.length) { alert('Nothing to export.'); return; }
+  const cols = [...new Set(_currentData.flatMap(r => Object.keys(r)))];
+  const esc = v => '"' + String(v === undefined ? '' : typeof v === 'object' ? JSON.stringify(v) : v).replace(/"/g,'""') + '"';
+  const csv = [cols.join(',')].concat(_currentData.map(r => cols.map(c => esc(r[c])).join(','))).join('\n');
+  dl(csv, 'ashhomes-' + tab + '-' + new Date().toISOString().slice(0,10) + '.csv', 'text/csv');
 }
 function exportJSON(){
-  const d=data()[tab];if(!d.length){alert('Nothing to export.');return;}
-  dl(JSON.stringify(d,null,2),'ashhomes-'+tab+'-'+new Date().toISOString().slice(0,10)+'.json','application/json');
+  if (!_currentData.length) { alert('Nothing to export.'); return; }
+  dl(JSON.stringify(_currentData, null, 2), 'ashhomes-' + tab + '-' + new Date().toISOString().slice(0,10) + '.json', 'application/json');
 }
-function dl(content,name,type){
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();
+function dl(content, name, type){
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([content], {type})); a.download = name; a.click();
 }
-function clearCurrent(){
-  if(!confirm('Clear all '+tab+' data from this browser?'))return;
-  const map={activity:'ah_activity',leads:'ah_leads',users:'ah_users',saved:'ah_saved'};
-  localStorage.removeItem(map[tab]);boot();
-}
-document.getElementById('pin').addEventListener('keydown',e=>{if(e.key==='Enter')unlock();});
-boot();
+
+/* ---- Boot: check for existing session ---- */
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session && session.user && session.user.email === ADMIN_EMAIL) {
+    _session = session;
+    bootPanel(session.user);
+  }
+})();
+
+document.getElementById('gPass').addEventListener('keydown', e => { if (e.key === 'Enter') gateSignIn(); });
+document.getElementById('gEmail').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('gPass').focus(); });
 </script>
 </body>
 </html>
