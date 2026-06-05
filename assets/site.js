@@ -496,9 +496,6 @@ const AH = (() => {
       mob.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mob.classList.remove('open')));
     }
 
-    const io = new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }), {threshold:.12});
-    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
     const yr = document.getElementById('yr'); if(yr) yr.textContent = new Date().getFullYear();
 
     document.querySelectorAll('[data-track]').forEach(el => el.addEventListener('click', () => track('cta_click', {cta: el.dataset.track})));
@@ -541,7 +538,21 @@ const AH = (() => {
     track('page_view', {title: document.title});
   }
 
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', () => { init().catch(e => console.warn('AH init failed:', e)); });
+
+  /* ---- Reveal animations: independent of init() so content shows even if JS partially fails ---- */
+  document.addEventListener('DOMContentLoaded', () => {
+    const io = new IntersectionObserver(
+      es => es.forEach(e => { if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }),
+      {threshold:0, rootMargin:'0px 0px -30px 0px'}
+    );
+    document.querySelectorAll('.reveal').forEach(el => {
+      const r = el.getBoundingClientRect();
+      if (r.top < window.innerHeight && r.bottom > 0) { el.classList.add('in'); }
+      else { io.observe(el); }
+    });
+    setTimeout(() => document.querySelectorAll('.reveal:not(.in)').forEach(el => el.classList.add('in')), 2000);
+  });
 
   return { LISTINGS, renderListings, toggleSave, sendListToAsh, openModal, closeModal, submitAuth,
            signInGoogle, signOut, openDrawer, closeDrawer, track, lead, toast, saved, isSaved, user,
