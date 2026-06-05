@@ -507,6 +507,7 @@ const AH = (() => {
     initCalcs();
 
     /* --- Restore auth session from Supabase --- */
+    try {
     const client = getSB();
     if (client) {
       const { data: { session } } = await client.auth.getSession();
@@ -532,8 +533,9 @@ const AH = (() => {
         })();
       });
     }
+    } catch(e) { console.warn('Supabase init error:', e); }
 
-    await _loadSaved();
+    try { await _loadSaved(); } catch(e) {}
     refreshAuthUI();
     refreshSavedUI();
     track('page_view', {title: document.title});
