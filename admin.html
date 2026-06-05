@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin · AshHomes GTA</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/site.css">
+<script>window.SITE_BASE="";</script>
+<style>
+  .adminbar{background:var(--ink-2);color:#cdd8d3;padding:1.2rem 0}
+  .adminbar .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+  .adminbar b{font-family:'Cormorant Garamond';font-size:1.6rem;color:#fff;font-weight:600}
+  .adminbar b i{font-style:normal;color:var(--gold)}
+  .kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:3rem}
+  .kpis .cell{background:var(--paper);padding:1.8rem;text-align:center}
+  .kpis b{font-family:'Cormorant Garamond';font-size:2.4rem;font-weight:500;color:var(--ink);display:block;line-height:1.1}
+  .kpis span{font-size:.68rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+  .atabs{display:flex;gap:1.8rem;margin:0 0 2rem;flex-wrap:wrap}
+  .atabs button{background:none;border:none;font-size:.76rem;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);padding-bottom:.4rem;border-bottom:1px solid transparent}
+  .atabs button.active{color:var(--ink);border-color:var(--gold)}
+  .atabs button:hover{color:var(--gold)}
+  .tblwrap{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);overflow:auto;max-height:62vh}
+  table{width:100%;border-collapse:collapse;font-size:.82rem}
+  th{position:sticky;top:0;background:var(--ink);color:#fff;text-align:left;padding:.8rem 1rem;font-weight:400;font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap}
+  td{padding:.7rem 1rem;border-bottom:1px solid var(--line);color:var(--text);vertical-align:top}
+  tr:hover td{background:var(--cream)}
+  td .pill{display:inline-block;background:var(--cream-2);border-radius:99px;padding:.1rem .7rem;font-size:.7rem;letter-spacing:.06em}
+  td.mono{font-family:monospace;font-size:.74rem;color:var(--muted);max-width:340px;overflow-wrap:anywhere}
+  .toolrow{display:flex;justify-content:space-between;align-items:center;gap:1rem;margin-bottom:1.2rem;flex-wrap:wrap}
+  .toolrow .r{display:flex;gap:.8rem;flex-wrap:wrap}
+  .gate{min-height:70vh;display:flex;align-items:center;justify-content:center}
+  .gate .box{background:var(--paper);padding:3rem;border-radius:var(--r);box-shadow:var(--shadow);max-width:380px;width:100%;text-align:center}
+  .gate h2{font-weight:400;font-size:2rem;margin:.4rem 0 1.4rem}
+  .empty{padding:3rem;text-align:center;color:var(--muted);font-size:.9rem}
+  .note{font-size:.74rem;color:var(--muted);margin-top:1.2rem;max-width:680px}
+</style>
+</head>
+<body>
+
+<div class="adminbar">
+  <div class="wrap">
+    <b>Ash<i>Homes</i> · Admin</b>
+    <div style="display:flex;gap:1.4rem;align-items:center">
+      <a href="index.html" style="font-size:.76rem;letter-spacing:.14em;text-transform:uppercase">← Back to site</a>
+      <button class="btn btn-line" style="padding:.55rem 1.2rem;font-size:.7rem" onclick="lock()">Lock</button>
+    </div>
+  </div>
+</div>
+
+<div class="gate" id="gate">
+  <div class="box">
+    <div class="eyebrow">Admin access</div>
+    <h2>Enter admin PIN</h2>
+    <input class="inp" id="pin" type="password" placeholder="PIN" style="text-align:center;margin-bottom:1.4rem">
+    <button class="btn btn-gold btn-block" onclick="unlock()">Unlock</button>
+    <p class="note" style="text-align:center">Demo gate (PIN: 2026). Bolt replaces this with real authentication and an admin role — see BOLT-INSTRUCTIONS.md.</p>
+  </div>
+</div>
+
+<div class="section tight" id="panel" style="display:none">
+  <div class="wrap">
+    <div class="lead" style="margin-bottom:2.4rem">
+      <div class="eyebrow">Back office</div>
+      <h2 style="font-size:clamp(2rem,3.6vw,2.8rem)">Everything the site has captured.</h2>
+    </div>
+
+    <div class="kpis" id="kpis"></div>
+
+    <div class="atabs">
+      <button class="active" data-t="activity">Activity Log</button>
+      <button data-t="leads">Leads</button>
+      <button data-t="users">Registered Users</button>
+      <button data-t="saved">Saved Listings</button>
+    </div>
+
+    <div class="toolrow">
+      <span style="font-size:.8rem;color:var(--muted)" id="countLbl"></span>
+      <div class="r">
+        <button class="btn btn-ghost" style="padding:.55rem 1.2rem;font-size:.7rem" onclick="exportCSV()">Export CSV</button>
+        <button class="btn btn-ghost" style="padding:.55rem 1.2rem;font-size:.7rem" onclick="exportJSON()">Export JSON</button>
+        <button class="btn btn-line" style="padding:.55rem 1.2rem;font-size:.7rem" onclick="clearCurrent()">Clear This Data</button>
+      </div>
+    </div>
+
+    <div class="tblwrap"><div id="tbl"></div></div>
+
+    <p class="note">This demo dashboard reads from this browser's storage. In the production build (see BOLT-INSTRUCTIONS.md), every visitor's activity, lead, account and saved listing is written to the central database, and this page becomes a protected admin view over ALL visitors — with the same tables, filters and exports for building your funnel database.</p>
+  </div>
+</div>
+
+<script>
+const get=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
+let tab='activity';
+function unlock(){
+  if(document.getElementById('pin').value!=='2026'){alert('Wrong PIN (demo PIN is 2026)');return;}
+  sessionStorage.setItem('ah_admin','1');boot();
+}
+function lock(){sessionStorage.removeItem('ah_admin');location.reload();}
+function data(){
+  return {
+    activity:get('ah_activity',[]).slice().reverse(),
+    leads:get('ah_leads',[]).slice().reverse(),
+    users:get('ah_users',[]).map(u=>({joined:u.joined,name:u.name,email:u.email,provider:u.provider})),
+    saved:get('ah_saved',[]).map(m=>({mls:m}))
+  };
+}
+function boot(){
+  if(sessionStorage.getItem('ah_admin')!=='1')return;
+  document.getElementById('gate').style.display='none';
+  document.getElementById('panel').style.display='block';
+  const d=data();
+  const views=d.activity.filter(a=>a.event==='page_view').length;
+  const k=[['Total events',d.activity.length],['Page views',views],['Leads captured',d.leads.length],['Registered users',d.users.length],['Saved listings',d.saved.length]];
+  document.getElementById('kpis').innerHTML=k.map(x=>`<div class="cell"><b>${x[1]}</b><span>${x[0]}</span></div>`).join('');
+  render();
+}
+function render(){
+  const d=data()[tab];
+  document.getElementById('countLbl').textContent=d.length+' records — '+tab;
+  if(!d.length){document.getElementById('tbl').innerHTML='<div class="empty">Nothing here yet. Browse the site, save listings and submit a form — every interaction lands in this log.</div>';return;}
+  const cols=[...new Set(d.flatMap(r=>Object.keys(r)))];
+  let h='<table><thead><tr>'+cols.map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>';
+  d.slice(0,500).forEach(r=>{
+    h+='<tr>'+cols.map(c=>{
+      let v=r[c];
+      if(v===undefined||v===null)return'<td></td>';
+      if(c==='event'||c==='type'||c==='provider')return'<td><span class="pill">'+v+'</span></td>';
+      if(typeof v==='object')return'<td class="mono">'+JSON.stringify(v)+'</td>';
+      if(c==='ts'||c==='joined')return'<td style="white-space:nowrap">'+String(v).replace('T',' ').slice(0,19)+'</td>';
+      return'<td>'+String(v)+'</td>';
+    }).join('')+'</tr>';
+  });
+  document.getElementById('tbl').innerHTML=h+'</tbody></table>';
+}
+document.querySelectorAll('.atabs button').forEach(b=>b.onclick=()=>{
+  document.querySelectorAll('.atabs button').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');tab=b.dataset.t;render();
+});
+function exportCSV(){
+  const d=data()[tab];if(!d.length){alert('Nothing to export.');return;}
+  const cols=[...new Set(d.flatMap(r=>Object.keys(r)))];
+  const esc=v=>'"'+String(v===undefined?'':typeof v==='object'?JSON.stringify(v):v).replace(/"/g,'""')+'"';
+  const csv=[cols.join(',')].concat(d.map(r=>cols.map(c=>esc(r[c])).join(','))).join('\n');
+  dl(csv,'ashhomes-'+tab+'-'+new Date().toISOString().slice(0,10)+'.csv','text/csv');
+}
+function exportJSON(){
+  const d=data()[tab];if(!d.length){alert('Nothing to export.');return;}
+  dl(JSON.stringify(d,null,2),'ashhomes-'+tab+'-'+new Date().toISOString().slice(0,10)+'.json','application/json');
+}
+function dl(content,name,type){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([content],{type}));a.download=name;a.click();
+}
+function clearCurrent(){
+  if(!confirm('Clear all '+tab+' data from this browser?'))return;
+  const map={activity:'ah_activity',leads:'ah_leads',users:'ah_users',saved:'ah_saved'};
+  localStorage.removeItem(map[tab]);boot();
+}
+document.getElementById('pin').addEventListener('keydown',e=>{if(e.key==='Enter')unlock();});
+boot();
+</script>
+</body>
+</html>
