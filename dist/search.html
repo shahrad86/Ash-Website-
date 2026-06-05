@@ -3,20 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Selling Your GTA Home · AshHomes</title>
-<meta name="description" content="Sell for top dollar across Toronto and the GTA. Free home valuation, professional staging and marketing, and proven negotiation from Ash Ahluwalia.">
-<meta property="og:title" content="Selling Your GTA Home · AshHomes">
-<meta property="og:description" content="Sell for top dollar across Toronto and the GTA. Free home valuation, professional staging and marketing, and proven negotiation from Ash Ahluwalia.">
+<title>Search Listings · AshHomes GTA</title>
+<meta name="description" content="Search Toronto and GTA homes for sale and for lease. Filter by beds, baths, price, property type. Map and list views.">
 <meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-<!-- Google Analytics 4 — TODO: replace G-XXXXXXXXXX with the real Measurement ID (see SETUP-GUIDE.md) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-XXXXXXXXXX');</script>
 <script>window.SITE_BASE="";</script>
-
   <link rel="stylesheet" crossorigin href="/assets/site-BGSeCZ33.css">
+  <link rel="stylesheet" crossorigin href="/assets/listings-B84xxlYi.css">
 </head>
 <body>
 
@@ -34,14 +32,14 @@
   <div class="wrap">
     <a href="index.html" class="brand"><b>Ash<i>Homes</i></b></a>
     <nav class="navlinks">
-      <div class="dd"><a href="buyers.html">Buy</a>
+      <div class="dd"><a href="buyers.html" class="active">Buy</a>
         <div class="dd-menu">
           <a href="buyers.html">Buyers</a>
           <a href="first-time-buyers.html">First-Time Buyers</a>
           <a href="mls-search.html">MLS Search</a>
         </div>
       </div>
-      <a href="sellers.html" class="active">Sell</a>
+      <a href="sellers.html">Sell</a>
       <a href="landlords.html">Landlords</a>
       <div class="dd"><a href="communities/north-york.html">Communities</a>
         <div class="dd-menu"><a href="communities/north-york.html">North York</a><a href="communities/scarborough.html">Scarborough</a><a href="communities/bayview-village.html">Bayview Village</a><a href="communities/willowdale.html">Willowdale</a><a href="communities/don-mills.html">Don Mills</a><a href="communities/york-mills.html">York Mills</a><a href="communities/agincourt.html">Agincourt</a><a href="communities/village-green-square.html">Village Green Square</a></div>
@@ -78,86 +76,38 @@
   <a style="font-size:1.2rem" href="communities/north-york.html">North York</a><a style="font-size:1.2rem" href="communities/scarborough.html">Scarborough</a><a style="font-size:1.2rem" href="communities/bayview-village.html">Bayview Village</a><a style="font-size:1.2rem" href="communities/willowdale.html">Willowdale</a><a style="font-size:1.2rem" href="communities/don-mills.html">Don Mills</a><a style="font-size:1.2rem" href="communities/york-mills.html">York Mills</a><a style="font-size:1.2rem" href="communities/agincourt.html">Agincourt</a><a style="font-size:1.2rem" href="communities/village-green-square.html">Village Green Square</a>
 </div>
 
-<section class="phero">
-  <div class="pbg" style="background-image:url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1900&q=72')"></div>
+<div class="sp-bar" id="spBar">
   <div class="wrap">
-    
-    <div class="eyebrow" style="color:var(--gold-soft)">Sellers</div>
-    <h1>Sell for what it's <i>really</i> worth.</h1>
-    <p>Pricing grounded in real sales, marketing that earns attention, and negotiation that protects every dollar.</p>
+    <div id="spFilterRow" class="sp-filters"></div>
   </div>
-</section>
+</div>
 
-<section class="section">
+<div class="section tight" style="padding-top:1.6rem;padding-bottom:3rem">
   <div class="wrap">
-    <div class="lead reveal"><div class="eyebrow">The approach</div><h2>How your home gets sold.</h2></div>
-    <div class="steps">
-      <div class="cell reveal"><div class="n">01</div><h3>Honest valuation</h3><p>A walk-through and a comparable analysis — the real number, not a flattering one.</p></div>
-      <div class="cell reveal"><div class="n">02</div><h3>Prepare &amp; stage</h3><p>Targeted improvements, decluttering and staging that return multiples of their cost.</p></div>
-      <div class="cell reveal"><div class="n">03</div><h3>Market everywhere</h3><p>Professional photography, MLS, social campaigns, and Ash's own buyer network.</p></div>
-      <div class="cell reveal"><div class="n">04</div><h3>Negotiate &amp; close</h3><p>Offer strategy, bully-offer handling and clean conditions through to closing day.</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="section alt">
-  <div class="wrap">
-    <div class="twocol">
-      <div class="reveal">
-        <div class="eyebrow">Why it works</div>
-        <h2 style="font-size:clamp(2.2rem,3.8vw,3.2rem);font-weight:400;margin:.7rem 0 1.4rem">Preparation sells homes. Hope doesn't.</h2>
-        <p style="color:var(--muted);max-width:480px">The difference between an average sale and a great one is decided before the listing goes live. Ash's sellers consistently see faster sales and stronger offers because the groundwork is done right.</p>
-      </div>
-      <ul class="checks reveal">
-        <li>Free, no-obligation home valuation with a written comparable report</li>
-        <li>Professional photography, floor plans and video on every listing</li>
-        <li>Pre-listing inspection guidance to prevent surprises in negotiation</li>
-        <li>Strategic launch timing based on current market conditions</li>
-        <li>Weekly updates with showing feedback and market activity</li>
-        <li>Expert negotiation on every offer — price, conditions and closing</li>
-      </ul>
-    </div>
-  </div>
-</section>
-
-<section class="section" id="valuation">
-  <div class="wrap">
-    <div class="valband reveal">
-      <div>
-        <div class="eyebrow" style="color:var(--gold-soft)">Free valuation</div>
-        <h2>What is your home worth?</h2>
-        <p>A free, no-obligation valuation grounded in real local sales — not an algorithm.</p>
-      </div>
-      <form class="valform" data-lead="valuation">
-        <div class="form-ok">Sent. Ash will be in touch shortly.</div>
-        <input class="inp" name="address" placeholder="Property address" required>
-        <input class="inp" name="name" placeholder="Name" required>
-        <input class="inp" name="email" type="email" placeholder="Email" required>
-        <input class="inp" name="phone" placeholder="Phone">
-        <button class="btn btn-line btn-block" type="submit">Request Valuation</button>
-      </form>
-    </div>
-  </div>
-</section>
-
-<section class="ctaband">
-  <div class="wrap">
-    <div class="inner">
-      <div class="reveal">
-        <div class="eyebrow" style="color:var(--gold-soft)">Ready when you are</div>
-        <h2>Let's find your next move.</h2>
-        <p>A quick, no-pressure conversation about where you are and where you want to be.</p>
-      </div>
-      <div class="acts reveal">
-        <a href="contact.html" class="btn btn-gold btn-block" data-track="cta_book_consultation">Book a Consultation</a>
-        <div class="sub">
-          <a href="sellers.html#valuation" class="btn btn-light" data-track="cta_home_value">Free Home Value Estimate</a>
-          <a href="first-time-buyers.html#rentvsbuy" class="btn btn-light" data-track="cta_rent_vs_buy">Free Rent vs Buy Analysis</a>
+    <div class="sp-results-row">
+      <span class="sp-count" id="spCount"></span>
+      <div style="display:flex;gap:.6rem;align-items:center">
+        <select class="sp-sort" id="spSort">
+          <option value="default">Sort: Default</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+          <option value="sqft_desc">Largest First</option>
+          <option value="sqft_asc">Smallest First</option>
+        </select>
+        <div class="sp-view-btns" id="spViewBtns">
+          <button class="active" data-view="grid">Grid</button>
+          <button data-view="list">List</button>
+          <button data-view="map">Map</button>
         </div>
       </div>
     </div>
+    <div class="sp-layout grid-view" id="spGrid"></div>
+    <div class="sp-map-view" id="spMapView">
+      <div id="spMap"></div>
+      <div class="sp-map-list" id="spMapList"></div>
+    </div>
   </div>
-</section>
+</div>
 
 <footer>
   <div class="wrap">
@@ -188,7 +138,11 @@
     </div>
   </div>
 </footer>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="assets/listings-data.js"></script>
 <script src="assets/site.js"></script>
+<script src="assets/search.js"></script>
 </body>
 </html>
