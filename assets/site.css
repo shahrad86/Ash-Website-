@@ -126,7 +126,7 @@ header.nav.shrink .wrap{height:70px}
 
 /* SERVICES grid */
 .svc{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line)}
-.svc a,.svc .cell{background:var(--cream);padding:3rem 2.4rem;transition:.4s;display:block}
+.svc a,.svc .cell{background:var(--cream);padding:3rem 2.4rem;transition:.4s;display:flex;flex-direction:column}
 .svc a:hover{background:var(--paper)}
 .svc .n{font-family:'Cormorant Garamond';font-size:1.1rem;font-style:italic;color:var(--gold);transition:color .3s}
 .svc h3{font-size:1.9rem;font-weight:400;margin:.6rem 0 .5rem;transition:color .3s}

@@ -8,7 +8,7 @@
 window.AH_CONFIG = Object.assign({
   GA4_ID: 'G-XXXXXXXXXX',
   AGENT_EMAIL: 'ashhomesgta@gmail.com',
-  AGENT_PHONE: '+14165206500'
+  AGENT_PHONE: '+14165206525'
 }, window.AH_CONFIG || {});
 
 /* ---- Supabase client (loaded from CDN on every page) ---- */
