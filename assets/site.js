@@ -380,10 +380,15 @@ const AH = (() => {
     if(limit) list = list.slice(0, limit);
     list.forEach(l => {
       const s = ST[l.status];
-      g.insertAdjacentHTML('beforeend',
-        `<div class="card"><div class="ph"><span class="badge ${s.c}">${s.t}</span><button class="heart ${isSaved(l.mls)?'on':''}" data-mls="${l.mls}" onclick="AH.toggleSave('${l.mls}',this)" aria-label="Save listing"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z"/></svg></button><img src="${l.img}" loading="lazy" alt="${l.addr}"></div><div class="body"><div class="price">${l.price}</div><div class="addr">${l.addr}</div><div class="area">${l.area}</div><div class="specs"><span>${l.bd} bd</span><span>${l.ba} ba</span><span>${l.pk} pk</span><span>${l.sqft} sqft</span></div></div></div>`);
+      const card = document.createElement('a');
+      card.className = 'card';
+      card.href = BASE + 'listing.html?mls=' + l.mls;
+      card.style.display = 'block';
+      card.innerHTML = `<div class="ph"><span class="badge ${s.c}">${s.t}</span><button class="heart ${isSaved(l.mls)?'on':''}" data-mls="${l.mls}" aria-label="Save listing"><svg viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 00-7.8 0L12 5.6l-1-1a5.5 5.5 0 00-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 000-7.8z"/></svg></button><img src="${l.img}" loading="lazy" alt="${l.addr}"></div><div class="body"><div class="price">${l.price}</div><div class="addr">${l.addr}</div><div class="area">${l.area}</div><div class="specs"><span>${l.bd} bd</span><span>${l.ba} ba</span><span>${l.pk} pk</span><span>${l.sqft} sqft</span></div></div>`;
+      card.querySelector('.heart').addEventListener('click', e => { e.preventDefault(); e.stopPropagation(); toggleSave(l.mls, e.currentTarget); });
+      g.appendChild(card);
     });
-    if(!g.innerHTML) g.innerHTML = '<p style="color:var(--muted);grid-column:1/-1">Nothing matches. Contact Ash for off-market options.</p>';
+    if(!g.children.length) g.innerHTML = '<p style="color:var(--muted);grid-column:1/-1">Nothing matches. Contact Ash for off-market options.</p>';
   }
 
   /* ================================================================
@@ -537,6 +542,6 @@ const AH = (() => {
   document.addEventListener('DOMContentLoaded', init);
 
   return { LISTINGS, renderListings, toggleSave, sendListToAsh, openModal, closeModal, submitAuth,
-           signInGoogle, signOut, openDrawer, closeDrawer, track, lead, toast, saved, user,
+           signInGoogle, signOut, openDrawer, closeDrawer, track, lead, toast, saved, isSaved, user,
            _store: store };
 })();

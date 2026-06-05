@@ -25,6 +25,8 @@ export default defineConfig({
         'comm-village-green-square': resolve(__dirname, 'communities/village-green-square.html'),
         'comm-willowdale':  resolve(__dirname, 'communities/willowdale.html'),
         'comm-york-mills':  resolve(__dirname, 'communities/york-mills.html'),
+        listing:            resolve(__dirname, 'listing.html'),
+        search:             resolve(__dirname, 'search.html'),
       },
     },
   },
