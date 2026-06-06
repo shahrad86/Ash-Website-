@@ -79,11 +79,11 @@
     </div>
 
     <div class="kpis" id="kpis">
-      <div class="cell"><b>—</b><span>Total events</span></div>
-      <div class="cell"><b>—</b><span>Page views</span></div>
-      <div class="cell"><b>—</b><span>Leads captured</span></div>
-      <div class="cell"><b>—</b><span>Registered users</span></div>
-      <div class="cell"><b>—</b><span>Saved listings</span></div>
+      <div class="cell"><b>...</b><span>Total events</span></div>
+      <div class="cell"><b>...</b><span>Page views</span></div>
+      <div class="cell"><b>...</b><span>Leads captured</span></div>
+      <div class="cell"><b>...</b><span>Registered users</span></div>
+      <div class="cell"><b>...</b><span>Saved listings</span></div>
     </div>
 
     <div class="atabs">
@@ -216,7 +216,7 @@ async function loadTab(){
   try {
     const { data, count } = await apiFetch(params);
     _currentData = data || [];
-    document.getElementById('countLbl').textContent = `${count ?? _currentData.length} records — ${tab}`;
+    document.getElementById('countLbl').textContent = `${count ?? _currentData.length} records: ${tab}`;
     render(_currentData);
   } catch(e) {
     document.getElementById('tbl').innerHTML = `<div class="empty">Error loading data: ${e.message}</div>`;

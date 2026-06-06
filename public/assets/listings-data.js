@@ -20,11 +20,11 @@ window.AH_DETAILS = {
       "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=1200&q=80"
     ],
-    description: "A rare penthouse-level suite at 181 Sterling — one of Bloordale's most architecturally striking conversions. Three true bedrooms, nine-foot concrete ceilings, and southwest-facing windows that flood every room with light. The open-plan kitchen features integrated appliances and a waterfall island perfect for entertaining. Primary bedroom includes a walk-through closet and a five-piece ensuite with heated floors. Steps to Roncesvalles Village, Dundas West TTC, and the UP Express at Bloor Go.",
+    description: "A rare penthouse-level suite at 181 Sterling, one of Bloordale's most architecturally striking conversions. Three true bedrooms, nine-foot concrete ceilings, and southwest-facing windows that flood every room with light. The open-plan kitchen features integrated appliances and a waterfall island perfect for entertaining. Primary bedroom includes a walk-through closet and a five-piece ensuite with heated floors. Steps to Roncesvalles Village, Dundas West TTC, and the UP Express at Bloor Go.",
     keyFacts: [
-      { label: "Property Type", value: "Condo — Penthouse" },
+      { label: "Property Type", value: "Condo - Penthouse" },
       { label: "Maintenance Fee", value: "$820/mo" },
-      { label: "Locker", value: "Yes — owned" },
+      { label: "Locker", value: "Yes, owned" },
       { label: "Exposure", value: "SW" },
       { label: "Year Built", value: "2019" },
       { label: "Stories in Building", value: "12" },
@@ -76,12 +76,12 @@ window.AH_DETAILS = {
       "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80"
     ],
-    description: "Waterfront living at its finest — this sprawling 939 sq ft suite at Waters Edge faces the lake directly, with floor-to-ceiling windows in every principal room. The spacious den is fully enclosed and used as a second bedroom. Two full baths, two side-by-side parking spots, and a large locker. Walk to Mimico GO, Humber Bay Shores Park, and the upcoming Mimico waterfront trail extension. Rarely does a corner suite with this exposure hit the market at under $1.2M.",
+    description: "Waterfront living at its finest, this sprawling 939 sq ft suite at Waters Edge faces the lake directly, with floor-to-ceiling windows in every principal room. The spacious den is fully enclosed and used as a second bedroom. Two full baths, two side-by-side parking spots, and a large locker. Walk to Mimico GO, Humber Bay Shores Park, and the upcoming Mimico waterfront trail extension. Rarely does a corner suite with this exposure hit the market at under $1.2M.",
     keyFacts: [
-      { label: "Property Type", value: "Condo — Corner Suite" },
+      { label: "Property Type", value: "Condo - Corner Suite" },
       { label: "Maintenance Fee", value: "$760/mo" },
-      { label: "Locker", value: "Yes — owned" },
-      { label: "Exposure", value: "SE — Lake views" },
+      { label: "Locker", value: "Yes, owned" },
+      { label: "Exposure", value: "SE, Lake views" },
       { label: "Year Built", value: "2012" },
       { label: "Stories in Building", value: "8" },
       { label: "Total Units", value: "96" },
@@ -131,9 +131,9 @@ window.AH_DETAILS = {
       "https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80"
     ],
-    description: "A bright split-bedroom layout on the 20th floor at 18 Yonge — right where the Financial District meets the waterfront. Two full baths, engineered hardwood throughout, a renovated kitchen with quartz countertops and a Bosch dishwasher. The primary bedroom overlooks the lake; the second faces north toward the CN Tower. One underground parking spot. Walk score 99 — everything Toronto's core has to offer is at your doorstep.",
+    description: "A bright split-bedroom layout on the 20th floor at 18 Yonge, right where the Financial District meets the waterfront. Two full baths, engineered hardwood throughout, a renovated kitchen with quartz countertops and a Bosch dishwasher. The primary bedroom overlooks the lake; the second faces north toward the CN Tower. One underground parking spot. Walk score 99, everything Toronto's core has to offer is at your doorstep.",
     keyFacts: [
-      { label: "Property Type", value: "Condo — Suite" },
+      { label: "Property Type", value: "Condo - Suite" },
       { label: "Maintenance Fee", value: "$650/mo" },
       { label: "Locker", value: "No" },
       { label: "Exposure", value: "NW" },
@@ -187,12 +187,12 @@ window.AH_DETAILS = {
       "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1554995207-c18c203602cb?auto=format&fit=crop&w=1200&q=80"
     ],
-    description: "One of the most sought-after layouts in E2 Condos — a 1,200 sq ft three-bedroom corner suite on a high floor with unobstructed northeast views across the city skyline. Three full baths, a chef's kitchen with a gas range and wine fridge, and a large wrap-around balcony. Each bedroom has its own ensuite or semi-ensuite. One parking, one locker. Walking distance to U of T, Bloor-Yonge subway, and the best of the Annex.",
+    description: "One of the most sought-after layouts in E2 Condos, a 1,200 sq ft three-bedroom corner suite on a high floor with unobstructed northeast views across the city skyline. Three full baths, a chef's kitchen with a gas range and wine fridge, and a large wrap-around balcony. Each bedroom has its own ensuite or semi-ensuite. One parking, one locker. Walking distance to U of T, Bloor-Yonge subway, and the best of the Annex.",
     keyFacts: [
-      { label: "Property Type", value: "Condo — Corner Suite" },
+      { label: "Property Type", value: "Condo - Corner Suite" },
       { label: "Maintenance Fee", value: "$940/mo" },
-      { label: "Locker", value: "Yes — owned" },
-      { label: "Exposure", value: "NE — City views" },
+      { label: "Locker", value: "Yes, owned" },
+      { label: "Exposure", value: "NE, City views" },
       { label: "Year Built", value: "2021" },
       { label: "Stories in Building", value: "64" },
       { label: "Total Units", value: "680" },
@@ -241,9 +241,9 @@ window.AH_DETAILS = {
       "https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1493809842364-78817add7ffb?auto=format&fit=crop&w=1200&q=80"
     ],
-    description: "Premium 2-bedroom, 2-bath suite in Vaughan's flagship Transit City development — directly above the Vaughan Metropolitan Centre subway terminus. Modern finishes throughout: integrated appliances, quartz countertops, wide-plank laminate, and floor-to-ceiling windows. One parking, one locker included. Ideal for commuters: non-stop subway to Bloor-Yonge in under 40 minutes. Yorkdale Mall and York University accessible in minutes.",
+    description: "Premium 2-bedroom, 2-bath suite in Vaughan's flagship Transit City development, directly above the Vaughan Metropolitan Centre subway terminus. Modern finishes throughout: integrated appliances, quartz countertops, wide-plank laminate, and floor-to-ceiling windows. One parking, one locker included. Ideal for commuters: non-stop subway to Bloor-Yonge in under 40 minutes. Yorkdale Mall and York University accessible in minutes.",
     keyFacts: [
-      { label: "Property Type", value: "Condo — Lease" },
+      { label: "Property Type", value: "Condo - Lease" },
       { label: "Lease Term", value: "12 months min" },
       { label: "Available", value: "July 1, 2025" },
       { label: "Exposure", value: "N" },
@@ -283,7 +283,7 @@ window.AH_DETAILS = {
     priceRaw: 2650,
     addr: "812, 30 Shore Breeze Dr",
     unit: "812",
-    building: "Eau du Soleil — Sun Tower",
+    building: "Eau du Soleil, Sun Tower",
     area: "Humber Bay, Etobicoke",
     city: "Etobicoke",
     postalCode: "M8V 0J1",
@@ -294,12 +294,12 @@ window.AH_DETAILS = {
       "https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&w=1200&q=80"
     ],
-    description: "Sleek 1-bedroom suite in Humber Bay's most glamorous waterfront address — Eau du Soleil Sun Tower. High floor, west-facing balcony with lake and sunset views. Modern kitchen with built-in appliances and a breakfast bar. Full bath with soaker tub. One parking, one locker. Access to world-class amenities including a rooftop infinity pool, indoor lap pool, fitness centre, and private spa. Steps to the Waterfront Trail and Mimico GO.",
+    description: "Sleek 1-bedroom suite in Humber Bay's most glamorous waterfront address, Eau du Soleil Sun Tower. High floor, west-facing balcony with lake and sunset views. Modern kitchen with built-in appliances and a breakfast bar. Full bath with soaker tub. One parking, one locker. Access to world-class amenities including a rooftop infinity pool, indoor lap pool, fitness centre, and private spa. Steps to the Waterfront Trail and Mimico GO.",
     keyFacts: [
-      { label: "Property Type", value: "Condo — Lease" },
+      { label: "Property Type", value: "Condo - Lease" },
       { label: "Lease Term", value: "12 months min" },
       { label: "Available", value: "June 15, 2025" },
-      { label: "Exposure", value: "W — Lake & sunset views" },
+      { label: "Exposure", value: "W, Lake & sunset views" },
       { label: "Year Built", value: "2020" },
       { label: "Stories in Building", value: "66" },
       { label: "Pets Allowed", value: "Restricted" },
@@ -349,12 +349,12 @@ window.AH_DETAILS = {
     ],
     description: "A beautifully maintained 4-bedroom detached in one of Markham's most desirable family pockets. Double car garage, finished basement, and a private backyard with a deck and mature trees. Main floor features 9-foot ceilings, hardwood throughout, a family room with gas fireplace, and a chef's kitchen with a centre island. Primary bedroom includes a 5-piece ensuite and walk-in closet. Minutes to Markham Stouffville Hospital, top-ranked schools, and Hwy 407.",
     keyFacts: [
-      { label: "Property Type", value: "Detached — 2-storey" },
+      { label: "Property Type", value: "Detached - 2-storey" },
       { label: "Lot Size", value: "40 × 110 ft" },
       { label: "Basement", value: "Finished" },
       { label: "Garage", value: "Double attached" },
       { label: "Year Built", value: "2010" },
-      { label: "Heat", value: "Forced air — gas" },
+      { label: "Heat", value: "Forced air, gas" },
       { label: "A/C", value: "Central" },
       { label: "Taxes (2024)", value: "$6,200/yr" }
     ],
@@ -404,14 +404,14 @@ window.AH_DETAILS = {
       "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80",
       "https://images.unsplash.com/photo-1570129477492-45c003edd2be?auto=format&fit=crop&w=1200&q=80"
     ],
-    description: "A charming 3-bedroom detached on a quiet, family-friendly Scarborough street — upgraded throughout and move-in ready. Open-concept main floor with hardwood floors, an updated kitchen with stainless steel appliances, and a large family room with a walk-out to the deck. Three good-sized bedrooms upstairs; primary includes double closets. Double-wide driveway (fits 2 cars). Steps to Scarborough Bluffs Park, Ellesmere TTC bus, and excellent school catchments.",
+    description: "A charming 3-bedroom detached on a quiet, family-friendly Scarborough street, upgraded throughout and move-in ready. Open-concept main floor with hardwood floors, an updated kitchen with stainless steel appliances, and a large family room with a walk-out to the deck. Three good-sized bedrooms upstairs; primary includes double closets. Double-wide driveway (fits 2 cars). Steps to Scarborough Bluffs Park, Ellesmere TTC bus, and excellent school catchments.",
     keyFacts: [
-      { label: "Property Type", value: "Detached — Bungalow" },
+      { label: "Property Type", value: "Detached - Bungalow" },
       { label: "Lot Size", value: "45 × 130 ft" },
-      { label: "Basement", value: "Full — unfinished" },
-      { label: "Garage", value: "None — 2-car driveway" },
+      { label: "Basement", value: "Full, unfinished" },
+      { label: "Garage", value: "None, 2-car driveway" },
       { label: "Year Built", value: "1968" },
-      { label: "Heat", value: "Forced air — gas" },
+      { label: "Heat", value: "Forced air, gas" },
       { label: "A/C", value: "Central" },
       { label: "Taxes (2024)", value: "$4,100/yr" }
     ],
@@ -422,7 +422,7 @@ window.AH_DETAILS = {
       { name: "Primary Bedroom", floor: "Main", dims: "14.0 × 12.5 ft" },
       { name: "Bedroom 2", floor: "Main", dims: "12.0 × 11.0 ft" },
       { name: "Bedroom 3", floor: "Main", dims: "11.0 × 10.0 ft" },
-      { name: "Basement", floor: "Lower", dims: "Open concept — full footprint" }
+      { name: "Basement", floor: "Lower", dims: "Open concept, full footprint" }
     ],
     amenities: [],
     schools: [
