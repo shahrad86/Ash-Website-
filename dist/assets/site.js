@@ -402,6 +402,9 @@ const AH = (() => {
         f.querySelectorAll('input,select,textarea').forEach(i => { if(i.name) data[i.name] = i.value; });
         const required = f.querySelectorAll('[required]');
         for(const r of required){ if(!r.value){ toast('Please fill in the required fields.'); r.focus(); return; } }
+        // Collect Turnstile token if widget is present
+        const tsEl = f.querySelector('.cf-turnstile [name="cf-turnstile-response"]');
+        if(tsEl) data['cf-turnstile-response'] = tsEl.value;
         await lead(f.dataset.lead, data);
         const ok = f.querySelector('.form-ok');
         if(ok) ok.style.display = 'block';
