@@ -12,8 +12,8 @@ window.AH_CONFIG = Object.assign({
 }, window.AH_CONFIG || {});
 
 /* ---- Supabase client (loaded from CDN on every page) ---- */
-const _SB_URL  = 'https://0ec90b57d6e95fcbda19832f.supabase.co';
-const _SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJib2x0IiwicmVmIjoiMGVjOTBiNTdkNmU5NWZjYmRhMTk4MzJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4ODE1NzQsImV4cCI6MTc1ODg4MTU3NH0.9I8-U0x86Ak8t2DGaIk0HfvTSLsAyzdnz-Nw00mMkKw';
+const _SB_URL  = 'https://cqzbpnmhdhirnxmeturs.supabase.co';
+const _SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNxemJwbm1oZGhpcm54bWV0dXJzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA2NzY4NzksImV4cCI6MjA5NjI1Mjg3OX0.QyY3EvRKDxb-rhessfI9-iCpqkBTY2szu9-VwGVWLlk';
 
 const AH = (() => {
   const BASE = window.SITE_BASE || '';
