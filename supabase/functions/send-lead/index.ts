@@ -2,7 +2,7 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Origin": "https://ashhomesgta.ca",
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
@@ -14,13 +14,36 @@ Deno.serve(async (req: Request) => {
 
   try {
     const body = await req.json();
-    const { type, name, email, phone, message, payload, source_page } = body;
+    const { type, name, email, phone, message, payload, source_page, "cf-turnstile-response": turnstileToken } = body;
 
     if (!type) {
       return new Response(JSON.stringify({ error: "type is required" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
+    }
+
+    // Verify Turnstile token before accepting the lead
+    const turnstileSecret = Deno.env.get("TURNSTILE_SECRET_KEY");
+    if (turnstileSecret) {
+      if (!turnstileToken) {
+        return new Response(JSON.stringify({ error: "Missing CAPTCHA token" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const verifyRes = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `secret=${encodeURIComponent(turnstileSecret)}&response=${encodeURIComponent(turnstileToken)}`,
+      });
+      const verifyData = await verifyRes.json();
+      if (!verifyData.success) {
+        return new Response(JSON.stringify({ error: "CAPTCHA verification failed" }), {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
     }
 
     const supabase = createClient(
