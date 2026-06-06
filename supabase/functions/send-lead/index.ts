@@ -26,6 +26,7 @@ Deno.serve(async (req: Request) => {
     // Verify Turnstile token before accepting the lead
     const turnstileSecret = Deno.env.get("TURNSTILE_SECRET_KEY");
     if (turnstileSecret) {
+      console.log("token present:", !!turnstileToken);
       if (!turnstileToken) {
         return new Response(JSON.stringify({ error: "Missing CAPTCHA token" }), {
           status: 403,
@@ -38,6 +39,7 @@ Deno.serve(async (req: Request) => {
         body: `secret=${encodeURIComponent(turnstileSecret)}&response=${encodeURIComponent(turnstileToken)}`,
       });
       const verifyData = await verifyRes.json();
+      console.log("turnstile result:", JSON.stringify(verifyData));
       if (!verifyData.success) {
         return new Response(JSON.stringify({ error: "CAPTCHA verification failed" }), {
           status: 403,
