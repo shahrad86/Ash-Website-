@@ -499,6 +499,22 @@ const AH = (() => {
       mob.querySelectorAll('a').forEach(a => a.addEventListener('click', () => mob.classList.remove('open')));
     }
 
+    /* Sliding nav pill */
+    const navlinks = document.querySelector('.navlinks');
+    if(navlinks){
+      const pill = document.createElement('span');
+      pill.className = 'nav-pill';
+      navlinks.appendChild(pill);
+      const items = navlinks.querySelectorAll(':scope > a, :scope > .dd');
+      const movePill = (el) => {
+        const cr = navlinks.getBoundingClientRect();
+        const er = el.getBoundingClientRect();
+        pill.style.cssText = `left:${er.left - cr.left}px;width:${er.width}px;opacity:1`;
+      };
+      items.forEach(item => item.addEventListener('mouseenter', () => movePill(item)));
+      navlinks.addEventListener('mouseleave', () => { pill.style.opacity = '0'; });
+    }
+
     const yr = document.getElementById('yr'); if(yr) yr.textContent = new Date().getFullYear();
 
     document.querySelectorAll('[data-track]').forEach(el => el.addEventListener('click', () => track('cta_click', {cta: el.dataset.track})));

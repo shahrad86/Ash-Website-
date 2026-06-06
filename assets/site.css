@@ -50,9 +50,14 @@ header.nav.shrink .wrap{height:70px}
 .brand b{font-family:'Cormorant Garamond';font-size:1.8rem;font-weight:600;color:var(--ink);letter-spacing:.02em;transition:color .3s;white-space:nowrap}
 .brand:hover b{color:var(--gold)}
 .brand i{font-style:normal;color:var(--gold)}
-.navlinks{display:flex;gap:1.7rem;flex:1;justify-content:center;flex-wrap:wrap;align-items:center;padding:0 1.5rem}
-.navlinks a{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text);font-weight:400;white-space:nowrap}
+.navlinks{display:flex;gap:.2rem;flex:1;justify-content:center;flex-wrap:nowrap;align-items:center;padding:0 1.5rem;position:relative}
+.navlinks a{font-size:.72rem;letter-spacing:.11em;text-transform:uppercase;color:var(--text);font-weight:400;white-space:nowrap;position:relative;z-index:1;transition:color .2s}
 .navlinks a.active{color:var(--gold)}
+.navlinks > a, .navlinks .dd{padding:.45rem .7rem;border-radius:100px}
+.navlinks .dd > a{padding:0}
+/* sliding pill */
+.nav-pill{position:absolute;top:50%;transform:translateY(-50%);height:34px;border-radius:100px;background:var(--gold);opacity:0;pointer-events:none;z-index:0;transition:left .28s cubic-bezier(.25,.46,.45,.94),width .28s cubic-bezier(.25,.46,.45,.94),opacity .2s}
+.navlinks a{font-size:.72rem;letter-spacing:.11em;text-transform:uppercase;color:var(--text);font-weight:400;white-space:nowrap;position:relative;z-index:1;transition:color .2s}
 .nav-cta{display:flex;align-items:center;gap:.9rem}
 .burger{display:none;flex-direction:column;gap:6px;background:none;border:none;padding:8px}
 .burger span{width:26px;height:1px;background:var(--ink);transition:.3s}
