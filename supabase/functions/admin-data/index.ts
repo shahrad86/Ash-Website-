@@ -7,7 +7,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "Content-Type, Authorization, X-Client-Info, Apikey",
 };
 
-const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL") || "ashhomesgta@gmail.com";
+const ADMIN_EMAILS = (Deno.env.get("ADMIN_EMAILS") || "ashhomesgta@gmail.com,shahrads@gmail.com").split(",").map(e => e.trim());
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
@@ -38,7 +38,7 @@ Deno.serve(async (req: Request) => {
       });
     }
 
-    if (user.email !== ADMIN_EMAIL) {
+    if (!user.email || !ADMIN_EMAILS.includes(user.email)) {
       return new Response(JSON.stringify({ error: "Forbidden" }), {
         status: 403,
         headers: { ...corsHeaders, "Content-Type": "application/json" },

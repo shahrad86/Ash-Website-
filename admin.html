@@ -126,7 +126,7 @@
 <script>
 const SB_URL  = 'https://0ec90b57d6e95fcbda19832f.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJib2x0IiwicmVmIjoiMGVjOTBiNTdkNmU5NWZjYmRhMTk4MzJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4ODE1NzQsImV4cCI6MTc1ODg4MTU3NH0.9I8-U0x86Ak8t2DGaIk0HfvTSLsAyzdnz-Nw00mMkKw';
-const ADMIN_EMAIL = 'ashhomesgta@gmail.com';
+const ADMIN_EMAILS = ['ashhomesgta@gmail.com','shahrads@gmail.com'];
 const FN_BASE = SB_URL + '/functions/v1';
 
 const sb = supabase.createClient(SB_URL, SB_ANON, { auth: { persistSession: true, autoRefreshToken: true } });
@@ -147,7 +147,7 @@ async function gateSignIn(){
   const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
   btn.disabled = false; btn.textContent = 'Sign In';
   if (error) { showErr(error.message); return; }
-  if (data.user.email !== ADMIN_EMAIL) {
+  if (!ADMIN_EMAILS.includes(data.user.email)) {
     await sb.auth.signOut();
     showErr('This account does not have admin access.');
     return;
@@ -281,7 +281,7 @@ function dl(content, name, type){
 /* ---- Boot: check for existing session ---- */
 (async () => {
   const { data: { session } } = await sb.auth.getSession();
-  if (session && session.user && session.user.email === ADMIN_EMAIL) {
+  if (session && session.user && ADMIN_EMAILS.includes(session.user.email)) {
     _session = session;
     bootPanel(session.user);
   }
