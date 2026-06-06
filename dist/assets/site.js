@@ -98,7 +98,7 @@ const AH = (() => {
   async function lead(type, payload){
     track('lead_submitted', { type, ...payload });
 
-    const { name, email, phone, message, ...rest } = payload;
+    const { name, email, phone, message, 'cf-turnstile-response': turnstileToken, ...rest } = payload;
     const body = {
       type,
       name: name || null,
@@ -106,7 +106,8 @@ const AH = (() => {
       phone: phone || null,
       message: message || null,
       payload: rest,
-      source_page: location.pathname.split('/').pop() || 'index.html'
+      source_page: location.pathname.split('/').pop() || 'index.html',
+      'cf-turnstile-response': turnstileToken || null
     };
 
     try {
@@ -194,7 +195,7 @@ const AH = (() => {
     if (!client) { toast('Service unavailable.'); return; }
     client.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: location.href }
+      options: { redirectTo: window.location.origin + window.location.pathname }
     });
   }
 
