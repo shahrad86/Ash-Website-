@@ -254,7 +254,7 @@ const AH = (() => {
     if(!s.length){ toast('Save a few homes first.'); return; }
     const u = user();
     if(!u){ openModal('signup','Sign in so Ash knows who the list is from.'); return; }
-    const items = s.map(m => { const l = LISTINGS.find(x => x.mls === m); return l ? `• ${l.addr} — ${l.area} — ${l.price} (MLS ${l.mls})` : `• MLS ${m}`; });
+    const items = s.map(m => { const l = LISTINGS.find(x => x.mls === m); return l ? `• ${l.addr}, ${l.area}, ${l.price} (MLS ${l.mls})` : `• MLS ${m}`; });
     await lead('showing_request', {
       name: u.name, email: u.email,
       listings: s,

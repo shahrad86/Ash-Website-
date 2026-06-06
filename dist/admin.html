@@ -79,11 +79,11 @@
     </div>
 
     <div class="kpis" id="kpis">
-      <div class="cell"><b>—</b><span>Total events</span></div>
-      <div class="cell"><b>—</b><span>Page views</span></div>
-      <div class="cell"><b>—</b><span>Leads captured</span></div>
-      <div class="cell"><b>—</b><span>Registered users</span></div>
-      <div class="cell"><b>—</b><span>Saved listings</span></div>
+      <div class="cell"><b>...</b><span>Total events</span></div>
+      <div class="cell"><b>...</b><span>Page views</span></div>
+      <div class="cell"><b>...</b><span>Leads captured</span></div>
+      <div class="cell"><b>...</b><span>Registered users</span></div>
+      <div class="cell"><b>...</b><span>Saved listings</span></div>
     </div>
 
     <div class="atabs">
@@ -126,7 +126,7 @@
 <script>
 const SB_URL  = 'https://0ec90b57d6e95fcbda19832f.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJib2x0IiwicmVmIjoiMGVjOTBiNTdkNmU5NWZjYmRhMTk4MzJmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTg4ODE1NzQsImV4cCI6MTc1ODg4MTU3NH0.9I8-U0x86Ak8t2DGaIk0HfvTSLsAyzdnz-Nw00mMkKw';
-const ADMIN_EMAIL = 'ashhomesgta@gmail.com';
+const ADMIN_EMAILS = ['ashhomesgta@gmail.com','shahrads@gmail.com'];
 const FN_BASE = SB_URL + '/functions/v1';
 
 const sb = supabase.createClient(SB_URL, SB_ANON, { auth: { persistSession: true, autoRefreshToken: true } });
@@ -147,7 +147,7 @@ async function gateSignIn(){
   const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
   btn.disabled = false; btn.textContent = 'Sign In';
   if (error) { showErr(error.message); return; }
-  if (data.user.email !== ADMIN_EMAIL) {
+  if (!ADMIN_EMAILS.includes(data.user.email)) {
     await sb.auth.signOut();
     showErr('This account does not have admin access.');
     return;
@@ -216,7 +216,7 @@ async function loadTab(){
   try {
     const { data, count } = await apiFetch(params);
     _currentData = data || [];
-    document.getElementById('countLbl').textContent = `${count ?? _currentData.length} records — ${tab}`;
+    document.getElementById('countLbl').textContent = `${count ?? _currentData.length} records: ${tab}`;
     render(_currentData);
   } catch(e) {
     document.getElementById('tbl').innerHTML = `<div class="empty">Error loading data: ${e.message}</div>`;
@@ -281,7 +281,7 @@ function dl(content, name, type){
 /* ---- Boot: check for existing session ---- */
 (async () => {
   const { data: { session } } = await sb.auth.getSession();
-  if (session && session.user && session.user.email === ADMIN_EMAIL) {
+  if (session && session.user && ADMIN_EMAILS.includes(session.user.email)) {
     _session = session;
     bootPanel(session.user);
   }

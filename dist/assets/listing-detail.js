@@ -70,7 +70,7 @@
     const rentGuess = Math.round(price * 0.004 / 50) * 50;
     const wrap = mk('div', 'ld-rvb');
     wrap.innerHTML = `
-      <h3>Rent vs Buy — run the numbers</h3>
+      <h3>Rent vs Buy: Run the Numbers</h3>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.6rem">
         <div>
           <div class="fg"><label>Monthly rent <b id="ldRentL">${fmt(rentGuess)}/mo</b></label><input type="range" id="ldRent" min="1000" max="8000" step="50" value="${rentGuess}"></div>
@@ -81,12 +81,12 @@
         </div>
         <div class="rvb-result">
           <div class="lbl" style="color:var(--gold-soft)">Estimated advantage</div>
-          <div class="big" id="ldRvbResult">—</div>
+          <div class="big" id="ldRvbResult">N/A</div>
           <div class="rvb-verdict" id="ldRvbVerdict"></div>
           <div style="margin-top:1.4rem;border-top:1px solid rgba(255,255,255,.15);padding-top:1rem">
-            <div style="display:flex;justify-content:space-between;font-size:.82rem;color:#cdd8d3;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.1)">Total rent cost <b style="color:#fff" id="ldRentT">—</b></div>
-            <div style="display:flex;justify-content:space-between;font-size:.82rem;color:#cdd8d3;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.1)">Total ownership cost <b style="color:#fff" id="ldOwnT">—</b></div>
-            <div style="display:flex;justify-content:space-between;font-size:.82rem;color:#cdd8d3;padding:.4rem 0">Equity built <b style="color:#fff" id="ldEquity">—</b></div>
+            <div style="display:flex;justify-content:space-between;font-size:.82rem;color:#cdd8d3;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.1)">Total rent cost <b style="color:#fff" id="ldRentT">N/A</b></div>
+            <div style="display:flex;justify-content:space-between;font-size:.82rem;color:#cdd8d3;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.1)">Total ownership cost <b style="color:#fff" id="ldOwnT">N/A</b></div>
+            <div style="display:flex;justify-content:space-between;font-size:.82rem;color:#cdd8d3;padding:.4rem 0">Equity built <b style="color:#fff" id="ldEquity">N/A</b></div>
           </div>
         </div>
       </div>`;
@@ -147,10 +147,10 @@
     const price = d.price || b.price || '';
     const addr = d.addr || b.addr || '';
     const area = d.area || b.area || '';
-    const bd = d.bd || b.bd || '—';
-    const ba = d.ba || b.ba || '—';
-    const pk = d.pk !== undefined ? d.pk : (b.pk !== undefined ? b.pk : '—');
-    const sqft = d.sqft || b.sqft || '—';
+    const bd = d.bd || b.bd || 'N/A';
+    const ba = d.ba || b.ba || 'N/A';
+    const pk = d.pk !== undefined ? d.pk : (b.pk !== undefined ? b.pk : 'N/A');
+    const sqft = d.sqft || b.sqft || 'N/A';
     const mlsNum = d.mls || b.mls || mls || '';
     const priceRaw = d.priceRaw || 0;
     const sqftNum = parseInt((sqft || '').replace(/,/g, ''), 10);
@@ -216,7 +216,7 @@
         <div><b>${sqft}</b><span>Sqft</span></div>
       </div>
       <button class="btn btn-gold btn-block" id="ldBookBtn" style="margin-bottom:.7rem" data-track="listing_book_showing">Book a Showing</button>
-      <button class="btn btn-ghost btn-block" id="ldSaveBtn">${savedNow ? 'Saved — Remove' : 'Save Listing'}</button>
+      <button class="btn btn-ghost btn-block" id="ldSaveBtn">${savedNow ? 'Saved / Remove' : 'Save Listing'}</button>
       <div class="agent-row">
         <div class="agent-avatar"><span>A</span></div>
         <div><div class="agent-name">Ash Ahluwalia</div><div class="agent-title">Sales Representative · AshHomes GTA</div></div>
@@ -226,7 +226,7 @@
 
     card.querySelector('#ldSaveBtn').onclick = function () {
       if (window.AH) AH.toggleSave(mlsNum, this);
-      this.textContent = (window.AH && AH.isSaved(mlsNum)) ? 'Saved — Remove' : 'Save Listing';
+      this.textContent = (window.AH && AH.isSaved(mlsNum)) ? 'Saved / Remove' : 'Save Listing';
     };
 
     card.querySelector('#ldBookBtn').onclick = () => {
@@ -307,7 +307,7 @@
     /* psf trend chart */
     if (d.priceSqftHistory && d.priceSqftHistory.length >= 2) {
       const s = mk('div', 'ld-section');
-      const lbl = status === 'lease' ? 'Rent / sqft trend — building' : 'Price / sqft trend — neighbourhood';
+      const lbl = status === 'lease' ? 'Rent / sqft trend, building' : 'Price / sqft trend, neighbourhood';
       s.innerHTML = `<h3>${lbl}</h3><canvas class="ld-chart-canvas" id="ldChart"></canvas>
         <div class="ld-chart-labels">${d.priceSqftHistory.map(p => `<span>${p.month}</span>`).join('')}</div>`;
       main.appendChild(s);
