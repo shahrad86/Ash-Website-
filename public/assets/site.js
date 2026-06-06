@@ -195,7 +195,7 @@ const AH = (() => {
     if (!client) { toast('Service unavailable.'); return; }
     client.auth.signInWithOAuth({
       provider: 'google',
-      options: { redirectTo: location.href }
+      options: { redirectTo: window.location.origin + window.location.pathname }
     });
   }
 
