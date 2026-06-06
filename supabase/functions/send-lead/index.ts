@@ -14,7 +14,12 @@ Deno.serve(async (req: Request) => {
 
   try {
     const body = await req.json();
-    const { type, name, email, phone, message, payload, source_page, "cf-turnstile-response": turnstileToken } = body;
+    const { type, name, email, phone, message, payload, source_page } = body;
+    const turnstileToken: string | undefined =
+      body["cf-turnstile-response"] ||
+      body.payload?.["cf-turnstile-response"] ||
+      body.token ||
+      undefined;
 
     if (!type) {
       return new Response(JSON.stringify({ error: "type is required" }), {
@@ -26,7 +31,7 @@ Deno.serve(async (req: Request) => {
     // Verify Turnstile token before accepting the lead
     const turnstileSecret = Deno.env.get("TURNSTILE_SECRET_KEY");
     if (turnstileSecret) {
-      console.log("token present:", !!turnstileToken);
+      console.log("token present:", !!turnstileToken, "len:", turnstileToken ? turnstileToken.length : 0);
       if (!turnstileToken) {
         return new Response(JSON.stringify({ error: "Missing CAPTCHA token" }), {
           status: 403,
