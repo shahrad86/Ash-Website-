@@ -45,12 +45,12 @@ button{transition:.3s;cursor:pointer;font-family:'Jost'}
 /* NAV */
 header.nav{position:sticky;top:0;z-index:90;background:rgba(246,242,233,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);transition:.4s}
 header.nav.shrink{box-shadow:0 10px 40px -28px rgba(0,0,0,.7)}
-.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:88px;transition:.4s;gap:1.5rem}
+.nav .wrap{display:flex;align-items:center;justify-content:space-between;height:88px;transition:.4s;gap:0}
 header.nav.shrink .wrap{height:70px}
 .brand b{font-family:'Cormorant Garamond';font-size:1.8rem;font-weight:600;color:var(--ink);letter-spacing:.02em;transition:color .3s;white-space:nowrap}
 .brand:hover b{color:var(--gold)}
 .brand i{font-style:normal;color:var(--gold)}
-.navlinks{display:flex;gap:1.7rem;flex-wrap:wrap;align-items:center}
+.navlinks{display:flex;gap:1.7rem;flex:1;justify-content:center;flex-wrap:wrap;align-items:center;padding:0 1.5rem}
 .navlinks a{font-size:.74rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text);font-weight:400;white-space:nowrap}
 .navlinks a.active{color:var(--gold)}
 .nav-cta{display:flex;align-items:center;gap:.9rem}
