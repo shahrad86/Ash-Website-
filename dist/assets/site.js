@@ -409,6 +409,8 @@ const AH = (() => {
         await lead(f.dataset.lead, data);
         const ok = f.querySelector('.form-ok');
         if(ok) ok.style.display = 'block';
+        const tsBox = f.querySelector('.cf-turnstile');
+        if (window.turnstile && tsBox) { try { window.turnstile.reset(tsBox); } catch(e) {} }
         f.querySelectorAll('input,textarea').forEach(i => i.value = '');
         toast('Sent. Ash will be in touch shortly.');
       });
