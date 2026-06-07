@@ -92,13 +92,15 @@ Deno.serve(async (req: Request) => {
             phone: phone || "",
             notes: message || JSON.stringify(payload || {}),
             lead_type: type,
-            source: source_page || "ashhomesgta.com",
+            source: source_page || "ashhomesgta.ca",
           }),
         });
       } catch (e) {
         console.error("BoldTrail API error:", e);
       }
-    } else if (boldtrailLeadEmail) {
+    }
+
+    if (boldtrailLeadEmail) {
       const resendKey = Deno.env.get("RESEND_API_KEY");
       if (resendKey) {
         const leadBody = [
@@ -119,7 +121,7 @@ Deno.serve(async (req: Request) => {
               "Authorization": `Bearer ${resendKey}`,
             },
             body: JSON.stringify({
-              from: "leads@ashhomesgta.com",
+              from: "leads@ashhomesgta.ca",
               to: boldtrailLeadEmail,
               subject: `New lead: ${type} — ${name || email || "anonymous"}`,
               text: leadBody,
@@ -160,7 +162,7 @@ Deno.serve(async (req: Request) => {
               "Authorization": `Bearer ${resendKey}`,
             },
             body: JSON.stringify({
-              from: "noreply@ashhomesgta.com",
+              from: "noreply@ashhomesgta.ca",
               to: agentEmail,
               subject: `Showing request from ${name || email || "a visitor"}`,
               text: emailBody,
