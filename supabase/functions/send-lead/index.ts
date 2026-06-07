@@ -73,7 +73,46 @@ Deno.serve(async (req: Request) => {
       console.error("leads insert error:", insertErr);
     }
 
-    // 2. Forward to BoldTrail via email whenever both env vars are set
+    // 2. Forward to kvCORE API whenever BOLDTRAIL_API_KEY is set
+    const boldtrailApiKey = Deno.env.get("BOLDTRAIL_API_KEY");
+    if (boldtrailApiKey) {
+      const kvContact = {
+        first_name: name ? name.split(" ")[0] : "",
+        last_name: name ? name.split(" ").slice(1).join(" ") : "",
+        email: email || "",
+        cell_phone: phone || "",
+        source: "ashhomesgta.ca website",
+        notes: [
+          `Lead type: ${type}`,
+          message ? `Message: ${message}` : "",
+          source_page ? `Page: ${source_page}` : "",
+        ].filter(Boolean).join("\n"),
+      };
+      const kvHeaders = {
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+        "Authorization": `Bearer ${boldtrailApiKey}`,
+      };
+      try {
+        let resp = await fetch("https://api.kvcore.com/v2/public/contact", {
+          method: "POST",
+          headers: kvHeaders,
+          body: JSON.stringify(kvContact),
+        });
+        if (resp.status === 404) {
+          resp = await fetch("https://api.kvcore.com/v2/public/contacts", {
+            method: "POST",
+            headers: kvHeaders,
+            body: JSON.stringify(kvContact),
+          });
+        }
+        console.log("kvcore api result:", resp.status, await resp.text());
+      } catch (e) {
+        console.error("kvCORE API error:", e);
+      }
+    }
+
+    // 3. Forward to BoldTrail via email whenever both env vars are set
     const boldtrailLeadEmail = Deno.env.get("BOLDTRAIL_LEAD_EMAIL");
     const resendKey = Deno.env.get("RESEND_API_KEY");
 
