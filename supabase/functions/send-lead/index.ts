@@ -73,63 +73,39 @@ Deno.serve(async (req: Request) => {
       console.error("leads insert error:", insertErr);
     }
 
-    // 2. Forward to BoldTrail/kvCORE — try API key first, then email
-    const boldtrailApiKey = Deno.env.get("BOLDTRAIL_API_KEY");
+    // 2. Forward to BoldTrail via email whenever both env vars are set
     const boldtrailLeadEmail = Deno.env.get("BOLDTRAIL_LEAD_EMAIL");
+    const resendKey = Deno.env.get("RESEND_API_KEY");
 
-    if (boldtrailApiKey) {
+    if (boldtrailLeadEmail && resendKey) {
+      const leadBody = [
+        `Lead type: ${type}`,
+        `Name: ${name || "—"}`,
+        `Email: ${email || "—"}`,
+        `Phone: ${phone || "—"}`,
+        `Message: ${message || "—"}`,
+        `Page: ${source_page || "—"}`,
+        payload ? `\nPayload:\n${JSON.stringify(payload, null, 2)}` : "",
+      ].filter(Boolean).join("\n");
+
       try {
-        await fetch("https://api.boldtrail.com/api/v1/leads", {
+        const resp = await fetch("https://api.resend.com/emails", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${boldtrailApiKey}`,
+            "Authorization": `Bearer ${resendKey}`,
           },
           body: JSON.stringify({
-            first_name: name ? name.split(" ")[0] : "",
-            last_name: name ? name.split(" ").slice(1).join(" ") : "",
-            email: email || "",
-            phone: phone || "",
-            notes: message || JSON.stringify(payload || {}),
-            lead_type: type,
-            source: source_page || "ashhomesgta.ca",
+            from: "AshHomes <noreply@ashhomesgta.ca>",
+            to: boldtrailLeadEmail,
+            subject: `New lead: ${type} — ${name || email || "anonymous"}`,
+            text: leadBody,
           }),
         });
+        const rjson = await resp.json();
+        console.log("boldtrail email result:", resp.status, JSON.stringify(rjson));
       } catch (e) {
-        console.error("BoldTrail API error:", e);
-      }
-    }
-
-    if (boldtrailLeadEmail) {
-      const resendKey = Deno.env.get("RESEND_API_KEY");
-      if (resendKey) {
-        const leadBody = [
-          `Lead type: ${type}`,
-          `Name: ${name || "—"}`,
-          `Email: ${email || "—"}`,
-          `Phone: ${phone || "—"}`,
-          `Message: ${message || "—"}`,
-          `Page: ${source_page || "—"}`,
-          payload ? `\nPayload:\n${JSON.stringify(payload, null, 2)}` : "",
-        ].filter(Boolean).join("\n");
-
-        try {
-          await fetch("https://api.resend.com/emails", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${resendKey}`,
-            },
-            body: JSON.stringify({
-              from: "leads@ashhomesgta.ca",
-              to: boldtrailLeadEmail,
-              subject: `New lead: ${type} — ${name || email || "anonymous"}`,
-              text: leadBody,
-            }),
-          });
-        } catch (e) {
-          console.error("BoldTrail email error:", e);
-        }
+        console.error("BoldTrail email error:", e);
       }
     }
 
